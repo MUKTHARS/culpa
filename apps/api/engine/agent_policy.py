@@ -15,6 +15,38 @@ from engine.attributes import tokens
 from engine.types import Candidate
 
 _BUDGET = re.compile(r"(?:under|below|max(?:imum)?|less than|up to|<=?)\s*\$?\s*(\d+(?:\.\d{1,2})?)", re.I)
+# Words that say nothing about which product is wanted.
+_NOT_PRODUCT_WORDS = {"under", "below", "max", "maximum", "less", "than", "up", "to", "for", "with", "and", "or", "in",
+                      "i", "me", "my", "want", "need", "buy", "get", "find", "please", "some", "new", "pair", "usd",
+                      "something", "anything", "item", "thing", "stuff", "good", "nice", "cheap"}
+
+
+class PolicyUnavailable(Exception):
+    pass
+
+
+class NoMatch(PolicyUnavailable):
+    """Nothing in the catalog relates to the instruction: a careful agent asks instead of buying something."""
+
+
+def _stem(word: str) -> str:
+    return word[:-1] if len(word) > 3 and word.endswith("s") else word
+
+
+def _product_terms(text: str) -> set[str]:
+    """Words that can identify a product: no budget words, no bare numbers ("9" alone could be any size)."""
+    return {_stem(t) for t in tokens(text) if t not in _NOT_PRODUCT_WORDS and not t.replace(".", "").isdigit()}
+
+
+def relates_to(instruction: str, title: str, category: str, attributes: dict[str, str]) -> bool:
+    """Does the item share at least one product word with the instruction ("shirt" vs socks: no)?
+
+    An instruction with no product words at all ("under $50") constrains nothing, so any item relates to it.
+    """
+    wanted = _product_terms(instruction)
+    if not wanted:
+        return True
+    return bool(wanted & _product_terms(" ".join([title, category, *attributes.values()])))
 
 
 def parse_budget(instruction: str) -> Decimal | None:
@@ -44,6 +76,8 @@ def attribute_aware(instruction: str, candidates: list[Candidate]) -> tuple[str,
         raise ValueError("no candidates")
     want = set(tokens(instruction))
     pool = _affordable(instruction, candidates)
+    if not any(relates_to(instruction, c.title, c.category, c.attributes) for c in pool):
+        raise NoMatch(f"nothing in the catalog matches {instruction!r}")
     ranked = sorted(pool, key=lambda c: (-len(want & _words(c)), Decimal(c.price), c.id))
     best = ranked[0]
     matched = sorted(want & _words(best))
@@ -59,10 +93,6 @@ def price_first(instruction: str, candidates: list[Candidate]) -> tuple[str, str
 
 
 POLICIES = {"attribute_aware": attribute_aware, "price_first": price_first}
-
-
-class PolicyUnavailable(Exception):
-    pass
 
 
 def run_policy(policy: str, instruction: str, candidates: list[Candidate], llm=None,

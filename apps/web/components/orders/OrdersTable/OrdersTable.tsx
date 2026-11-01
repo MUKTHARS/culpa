@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { Fragment, useCallback, useState } from "react";
 import { ordersApi } from "@/api/orders";
 import { Badge } from "@/components/ui/Badge/Badge";
 import { Button } from "@/components/ui/Button/Button";
@@ -11,8 +11,19 @@ import { attrs, money, shortHash, when } from "@/lib/format";
 import type { Order } from "@/types";
 import styles from "./OrdersTable.module.css";
 
-export function OrdersTable({ orders, onChange }: { orders: Order[]; onChange: () => void }) {
+interface Props {
+  orders: Order[];
+  onChange: () => void;
+  /** Show the dispute simulator. Off for the merchant, who fulfils orders but never disputes them. */
+  allowDispute?: boolean;
+}
+
+export function OrdersTable({ orders, onChange, allowDispute = true }: Props) {
   const [disputing, setDisputing] = useState<string | null>(null);
+  // Stable ref callback: scrolls once when the form opens, not on every refresh of the list.
+  const scrollIntoView = useCallback((el: HTMLDivElement | null) => {
+    el?.scrollIntoView({ block: "nearest", behavior: "smooth" });
+  }, []);
   const ship = useAsyncAction(async (id: string) => {
     await ordersApi.ship(id);
     onChange();
@@ -36,48 +47,58 @@ export function OrdersTable({ orders, onChange }: { orders: Order[]; onChange: (
           </thead>
           <tbody>
             {orders.map((o) => (
-              <tr key={o.id}>
-                <td>{when(o.created_at)}</td>
-                <td>
-                  <div className={styles.item}>
-                    <ProductImage src={o.product_image_url} alt={o.product_title} size="sm" />
-                    <div>
-                      <strong>{o.product_title}</strong>
-                      <div className="muted">{attrs(o.snapshot_attributes)}</div>
+              <Fragment key={o.id}>
+                <tr>
+                  <td>{when(o.created_at)}</td>
+                  <td>
+                    <div className={styles.item}>
+                      <ProductImage src={o.product_image_url} alt={o.product_title} size="sm" />
+                      <div>
+                        <strong>{o.product_title}</strong>
+                        <div className="muted">{attrs(o.snapshot_attributes)}</div>
+                      </div>
                     </div>
-                  </div>
-                </td>
-                <td>{o.delivered ? attrs(o.delivered_attributes) : <span className="muted">Not shipped</span>}</td>
-                <td>{money(o.amount, o.currency)}</td>
-                <td className="mono">{shortHash(o.evidence_root)}</td>
-                <td>
-                  <div className={styles.badges}>
-                    <Badge tone={o.status === "captured" ? "good" : "neutral"}>{o.status}</Badge>
-                    {o.simulated && <Badge tone="warn">simulated</Badge>}
-                  </div>
-                </td>
-                <td>
-                  <div className={styles.actions}>
-                    {o.status === "captured" && !o.shipped_at && (
-                      <Button size="sm" variant="secondary" onClick={() => ship.run(o.id)} loading={ship.pending}>
-                        Ship
-                      </Button>
-                    )}
-                    {o.status === "captured" && (
-                      <Button size="sm" onClick={() => setDisputing(disputing === o.id ? null : o.id)}>
-                        {disputing === o.id ? "Close" : "Open dispute"}
-                      </Button>
-                    )}
-                  </div>
-                </td>
-              </tr>
+                  </td>
+                  <td>{o.delivered ? attrs(o.delivered_attributes) : <span className="muted">Not shipped</span>}</td>
+                  <td>{money(o.amount, o.currency)}</td>
+                  <td className="mono">{shortHash(o.evidence_root)}</td>
+                  <td>
+                    <div className={styles.badges}>
+                      <Badge tone={o.status === "captured" ? "good" : "neutral"}>{o.status}</Badge>
+                      {o.simulated && <Badge tone="warn">simulated</Badge>}
+                    </div>
+                  </td>
+                  <td>
+                    <div className={styles.actions}>
+                      {o.status === "captured" && !o.shipped_at && (
+                        <Button size="sm" variant="secondary" onClick={() => ship.run(o.id)} loading={ship.pending}>
+                          Ship
+                        </Button>
+                      )}
+                      {allowDispute && o.status === "captured" && (
+                        <Button size="sm" onClick={() => setDisputing(disputing === o.id ? null : o.id)}
+                                aria-expanded={disputing === o.id}>
+                          {disputing === o.id ? "Close" : "Open dispute"}
+                        </Button>
+                      )}
+                    </div>
+                  </td>
+                </tr>
+                {disputing === o.id && (
+                  // The form opens right under its order, so it is visible however long the table is.
+                  <tr className={styles.disputeRow}>
+                    <td colSpan={7}>
+                      <div ref={scrollIntoView}>
+                        <SimulateDispute orderId={o.id} onDone={() => { setDisputing(null); onChange(); }} />
+                      </div>
+                    </td>
+                  </tr>
+                )}
+              </Fragment>
             ))}
           </tbody>
         </table>
       </div>
-      {disputing && (
-        <SimulateDispute orderId={disputing} onDone={() => { setDisputing(null); onChange(); }} />
-      )}
     </div>
   );
 }

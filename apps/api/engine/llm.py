@@ -3,12 +3,14 @@
 - Every call returns schema-validated JSON (structured outputs); the model never gets tools or money access.
 - Results are memoized by a hash of (model, prompt version, inputs).
 - Buyer-written text is passed as quoted data, never as instructions.
-- Failures raise LLMUnavailable; the engine then degrades to rule-based checks and caps confidence.
+- Failures raise LLMUnavailable; the engine falls back to its rule-based checks.
+- Account problems (no credit, bad key) are remembered for a few minutes so later calls fail instantly.
 """
 
 from __future__ import annotations
 
 import json
+import time
 from typing import Any, Protocol
 
 import anthropic
@@ -18,6 +20,7 @@ from core.security import sha256_hex
 from engine.types import Candidate
 
 PROMPT_VERSION = "v1"
+ACCOUNT_ERROR_HOLD_S = 300
 
 
 class LLMUnavailable(Exception):
@@ -80,8 +83,23 @@ class ClaudeLLM:
         self.fast_model = fast_model
         self.memo = memo or DictMemo()
         self.breaker = breaker or CircuitBreaker("claude")
+        self._account_error: str | None = None
+        self._account_error_at = 0.0
+
+    @property
+    def unavailable_reason(self) -> str | None:
+        """Why Claude cannot be used right now (no credit, invalid key), or None."""
+        if self._account_error and time.monotonic() - self._account_error_at < ACCOUNT_ERROR_HOLD_S:
+            return self._account_error
+        return None
+
+    def _account_failure(self, reason: str) -> LLMUnavailable:
+        self._account_error, self._account_error_at = reason, time.monotonic()
+        return LLMUnavailable(reason)
 
     def _call(self, model: str, prompt: str, schema: dict, max_tokens: int) -> dict:
+        if (reason := self.unavailable_reason) is not None:
+            raise LLMUnavailable(reason)
         try:
             self.breaker.before_call()
         except CircuitOpen as exc:
@@ -102,10 +120,15 @@ class ClaudeLLM:
                 response = self.client.messages.create(**kwargs)
         except anthropic.BadRequestError as exc:
             self.breaker.record_failure()
+            if "credit balance" in str(exc.message).lower():
+                raise self._account_failure("Anthropic account has no credit left") from exc
             raise LLMUnavailable(f"bad request: {exc.message}") from exc
         except anthropic.AuthenticationError as exc:
             self.breaker.record_failure()
-            raise LLMUnavailable("invalid ANTHROPIC_API_KEY") from exc
+            raise self._account_failure("invalid ANTHROPIC_API_KEY") from exc
+        except anthropic.PermissionDeniedError as exc:
+            self.breaker.record_failure()
+            raise self._account_failure("API key has no access to this model") from exc
         except anthropic.RateLimitError as exc:
             self.breaker.record_failure()
             raise LLMUnavailable("rate limited") from exc

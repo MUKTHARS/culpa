@@ -1,0 +1,136 @@
+.panel {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+  min-width: 0;
+}
+
+.band {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  background: var(--pp-navy);
+  color: #fff;
+  padding: 14px var(--space-5);
+}
+
+.bandTitle {
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.status {
+  font-size: 12px;
+  font-weight: 600;
+  padding: 2px 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.45);
+}
+
+.draft {
+  color: #cfe3f4;
+}
+
+.signing {
+  color: #fff;
+  border-color: #fff;
+}
+
+.signed {
+  background: #fff;
+  border-color: #fff;
+  color: var(--pp-navy);
+}
+
+.cap {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: var(--space-5) var(--space-5) var(--space-4);
+  border-bottom: 1px solid var(--line);
+}
+
+.capLabel {
+  font-size: 13px;
+  color: var(--ink-3);
+}
+
+.capValue {
+  font-size: 34px;
+  line-height: 1.1;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+  color: var(--ink);
+}
+
+.terms {
+  display: grid;
+  grid-template-columns: 104px 1fr;
+  gap: 10px var(--space-4);
+  margin: 0;
+  padding: var(--space-4) var(--space-5);
+}
+
+.terms dt {
+  font-size: 13px;
+  color: var(--ink-3);
+}
+
+.terms dd {
+  margin: 0;
+  color: var(--ink);
+  overflow-wrap: anywhere;
+}
+
+.empty {
+  color: var(--ink-3);
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.chip {
+  font-size: 13px;
+  color: var(--ink-2);
+  background: var(--accent-soft);
+  border-radius: 6px;
+  padding: 2px 8px;
+}
+
+.chip strong {
+  color: var(--pp-navy);
+}
+
+.outcome {
+  border-top: 1px solid var(--line);
+  padding: var(--space-5);
+}
+
+.footer {
+  font-size: 12px;
+  color: var(--ink-3);
+  background: var(--surface-2);
+  border-top: 1px solid var(--line);
+  padding: var(--space-3) var(--space-5);
+}
+
+@media (max-width: 480px) {
+  .terms {
+    grid-template-columns: 1fr;
+    gap: 2px;
+  }
+
+  .terms dd {
+    margin-bottom: var(--space-2);
+  }
+}

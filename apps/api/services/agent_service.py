@@ -13,7 +13,7 @@ from core.errors import CulpaError, NotFound, PayPalError
 from core.ids import iso, new_id, utcnow
 from core.logging import get_logger
 from core.security import idempotency_key, sha256_hex, sign
-from engine.agent_policy import attribute_aware
+from engine.agent_policy import NoMatch, attribute_aware
 from engine.dsa import Trie
 from engine.llm import LLMUnavailable
 from engine.types import Candidate
@@ -81,15 +81,19 @@ def shop(db: Session, *, buyer_id: str, instruction: str, max_amount: str | None
 
     policy, model = "attribute_aware", ""
     llm = get_llm()
-    if llm is not None:
-        try:
-            chosen_id, reasoning = llm.choose_product(instruction, candidates)
-            policy, model = "llm", llm.fast_model
-        except LLMUnavailable as exc:
-            log.warning("agent_llm_unavailable_fallback", error=str(exc))
+    try:
+        if llm is not None:
+            try:
+                chosen_id, reasoning = llm.choose_product(instruction, candidates)
+                policy, model = "llm", llm.fast_model
+            except LLMUnavailable as exc:
+                log.warning("agent_llm_unavailable_fallback", error=str(exc))
+                chosen_id, reasoning = attribute_aware(instruction, candidates)
+        else:
             chosen_id, reasoning = attribute_aware(instruction, candidates)
-    else:
-        chosen_id, reasoning = attribute_aware(instruction, candidates)
+    except NoMatch as exc:
+        raise CulpaError("The agent found nothing in the store that matches your request, so it didn't buy anything. "
+                         "Try other words (for example the product type) or another category.") from exc
 
     trace = AgentTrace(id=new_id("trc"), mandate_id=mandate.id, policy=policy, model=model, instruction=instruction,
                        candidates=[c.__dict__ for c in candidates], chosen_product_id=chosen_id, reasoning=reasoning,

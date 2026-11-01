@@ -1,4 +1,7 @@
-from engine.agent_policy import attribute_aware, parse_budget, price_first
+import pytest
+
+from engine.agent_policy import NoMatch, attribute_aware, parse_budget, price_first, relates_to
+from engine.llm import LLMUnavailable
 from engine.pipeline import analyze
 from engine.policy import decide
 from engine.types import BuyerSignals, CaseBundle, Integrity, ListingVersion
@@ -110,3 +113,39 @@ def test_ambiguity_without_qualifier_in_claim_goes_to_review():
                        claim="Not happy with this."))
     assert v.fault_class == "F3"
     assert v.action == "review"
+
+
+def test_agent_refuses_when_nothing_matches_the_instruction():
+    with pytest.raises(NoMatch):
+        attribute_aware("shirt", CATALOG)
+    assert relates_to("something under $50", "Stride Running Shoe", "shoes/running", {})  # no product words: no limit
+
+
+def test_unrelated_purchase_is_agent_fault_not_friendly_fraud():
+    # "shirt" with no required attributes, and the agent bought shoes: the item "fits" vacuously, but it is not
+    # what the buyer asked for. Culpa must blame the agent, never accuse the buyer.
+    v = analyze(bundle(instruction="shirt", required={}, claim="I wanted US 9, they sent UK 9."))
+    assert v.fault_class == "F2"
+    assert v.split["agent_provider"] == 1.0
+    assert not any(e.fault_class == "F6" for e in v.evidence)
+
+
+class NoCreditLLM:
+    """Every call fails the way an Anthropic account without credit does."""
+
+    fast_model = "claude-haiku-5-5"
+
+    def _fail(self, *_, **__):
+        raise LLMUnavailable("Anthropic account has no credit left")
+
+    choose_product = clarify = judge_claim = _fail
+
+
+def test_claude_outage_falls_back_to_rule_based_verdicts_without_capping():
+    llm = NoCreditLLM()
+    f3 = analyze(bundle(chosen=UK9, required={"size": "9"}, instruction="running shoes size 9",
+                        claim="I wanted US 9, they sent UK 9."), llm=llm)
+    assert f3.fault_class == "F3" and f3.action == "refund_partial"
+    assert "llm_unavailable" in f3.flags and not f3.degraded
+    f6 = analyze(bundle(claim="It never arrived."), llm=llm)
+    assert f6.fault_class == "F6" and f6.action == "contest" and f6.confidence >= 0.8

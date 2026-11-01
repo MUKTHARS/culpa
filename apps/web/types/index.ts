@@ -163,7 +163,7 @@ export interface ShopResult {
 export interface SystemStatus {
   env: string;
   paypal: { configured: boolean; env: string; webhook_verification: boolean; breaker: string };
-  llm: { configured: boolean; judge_model: string; fast_model: string; breaker: string };
+  llm: { configured: boolean; judge_model: string; fast_model: string; breaker: string; unavailable_reason: string | null };
   queue: { mode: string; depth: number | null };
   auto_settle: boolean;
   confidence_threshold: number;

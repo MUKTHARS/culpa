@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import anthropic
+import httpx2
 from sqlalchemy.exc import IntegrityError
 
 from core.cache import LRUCache
@@ -56,6 +58,12 @@ def get_llm() -> ClaudeLLM | None:
     if not s.llm_configured:
         return None
     if _llm is None:
+        client = None
+        if s.llm_ipv4_only:
+            # Binding to 0.0.0.0 makes the HTTP client (httpx2, used by this SDK) open IPv4 connections only.
+            http = httpx2.Client(transport=httpx2.HTTPTransport(local_address="0.0.0.0"), timeout=s.llm_timeout_s)
+            client = anthropic.Anthropic(api_key=s.anthropic_api_key, timeout=s.llm_timeout_s, max_retries=2,
+                                         http_client=http)
         _llm = ClaudeLLM(api_key=s.anthropic_api_key, judge_model=s.llm_judge_model, fast_model=s.llm_fast_model,
-                         timeout_s=s.llm_timeout_s, memo=DBMemo(), breaker=breakers["claude"])
+                         timeout_s=s.llm_timeout_s, memo=DBMemo(), breaker=breakers["claude"], client=client)
     return _llm

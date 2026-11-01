@@ -1,17 +1,188 @@
 .form {
   display: flex;
   flex-direction: column;
-  gap: var(--space-3);
+  gap: var(--space-5);
+}
+
+/* The instruction is the main input on the page, so it reads at body-plus size. */
+.task {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.taskLabel {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.taskInput {
+  font: inherit;
+  font-size: 18px;
+  line-height: 1.45;
+  color: var(--ink);
+  background: var(--surface);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-sm);
+  padding: 12px 14px;
+  resize: vertical;
+  min-height: 84px;
+}
+
+.taskInput::placeholder {
+  color: var(--ink-3);
+}
+
+.taskInput:focus,
+.moneyInput:focus {
+  outline: none;
+}
+
+.taskInput:focus,
+.money:focus-within {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-soft);
 }
 
 .examples {
   display: flex;
-  gap: 6px;
+  align-items: center;
+  gap: var(--space-3);
   flex-wrap: wrap;
+  margin-top: calc(var(--space-2) * -1);
+}
+
+.examplesLabel {
+  font-size: 13px;
+  color: var(--ink-3);
+}
+
+/* One control for mutually exclusive presets: connected segments, the selected one filled. */
+.segmented {
+  display: inline-flex;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  background: var(--surface);
+}
+
+.segment {
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink-2);
+  background: transparent;
+  border: 0;
+  padding: 6px 14px;
+  cursor: pointer;
+}
+
+.segment + .segment {
+  border-left: 1px solid var(--line-strong);
+}
+
+.segment:hover {
+  background: var(--surface-2);
+}
+
+.segment:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
+}
+
+.segmentActive,
+.segmentActive:hover {
+  background: var(--pp-navy);
+  color: #fff;
+}
+
+.limits {
+  border: 0;
+  border-top: 1px solid var(--line);
+  margin: 0;
+  padding: var(--space-5) 0 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  min-width: 0;
+}
+
+.limitsTitle {
+  float: left;
+  width: 100%;
+  padding: 0;
+  margin-bottom: var(--space-1);
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--ink);
 }
 
 .grid {
+  clear: both;
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: var(--space-3);
+  gap: var(--space-4);
+}
+
+.capField {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.fieldLabel {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--ink-2);
+}
+
+.money {
+  display: flex;
+  align-items: center;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  padding: 0 10px;
+}
+
+.currency,
+.code {
+  color: var(--ink-3);
+  font-size: 14px;
+}
+
+.code {
+  font-size: 12px;
+}
+
+.moneyInput {
+  font: inherit;
+  font-variant-numeric: tabular-nums;
+  color: var(--ink);
+  border: 0;
+  background: transparent;
+  padding: 8px 6px;
+  width: 100%;
+  min-width: 0;
+}
+
+.hint {
+  font-size: 12px;
+  color: var(--ink-3);
+}
+
+.submit {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  flex-wrap: wrap;
+  border-top: 1px solid var(--line);
+  padding-top: var(--space-5);
+}
+
+.submitNote {
+  font-size: 13px;
+  color: var(--ink-3);
 }

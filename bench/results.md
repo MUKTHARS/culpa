@@ -1,12 +1,12 @@
 # AgentDispute-150 results
 
-Generated 2026-11-01T09:20:12Z. 150 cases, 25 per fault class, 30 hard. Labels are true by construction (see `bench/generate.py`).
+Generated 2026-11-01T12:29:43Z. 150 cases, 25 per fault class, 30 hard. Labels are true by construction (see `bench/generate.py`).
 
 | System | Accuracy | Macro-F1 | Wrong-money rate | Escalated | Auto-decided accuracy | Friendly-fraud recall | False-accusation rate | ms/case |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| claim_keywords | 73.3% | 0.698 | 26.7% | 0.0% | 0.733 | 0.0 | 0.08 | 0.021 |
-| culpa_no_replay | 65.3% | 0.660 | 0.0% | 38.0% | 1.0 | 1.0 | 0.0 | 0.058 |
-| culpa_full | 98.7% | 0.993 | 0.0% | 6.0% | 1.0 | 1.0 | 0.0 | 0.076 |
+| claim_keywords | 73.3% | 0.698 | 26.7% | 0.0% | 0.733 | 0.0 | 0.08 | 0.023 |
+| culpa_no_replay | 65.3% | 0.660 | 0.0% | 38.0% | 1.0 | 1.0 | 0.0 | 0.066 |
+| culpa_full | 98.7% | 0.993 | 0.0% | 6.0% | 1.0 | 1.0 | 0.0 | 0.086 |
 
 Wrong-money rate: share of all cases where money would move to the wrong party (escalated cases move no money).
 

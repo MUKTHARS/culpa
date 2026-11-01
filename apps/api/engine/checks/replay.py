@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from engine.agent_policy import PolicyUnavailable, run_policy
+from engine.agent_policy import PolicyUnavailable, relates_to, run_policy
 from engine.attributes import fit, tokens
 from engine.llm import LLMUnavailable
 from engine.types import Candidate, CaseBundle, Evidence
@@ -28,6 +28,14 @@ def heuristic_clarify(instruction: str, claim_text: str, keys: list[str], chosen
 
 def run(b: CaseBundle, llm=None) -> tuple[list[Evidence], list[str]]:
     flags: list[str] = []
+    t = b.trace
+    if not relates_to(t.instruction, b.snapshot.title, b.order.category, b.snapshot.attributes):
+        return [Evidence(check="replay",
+                         finding=f"The buyer asked for '{t.instruction}' and the agent bought '{b.snapshot.title}', which "
+                                 "has nothing in common with the request. A careful agent would have asked instead.",
+                         cite="trace.instruction vs snapshot", fault_class="F2", party="agent_provider",
+                         weight=0.85)], flags
+
     req = b.mandate.constraints.required_attributes
     status = fit(req, b.snapshot.attributes)
     values = set(status.values())
@@ -36,7 +44,6 @@ def run(b: CaseBundle, llm=None) -> tuple[list[Evidence], list[str]]:
         return [Evidence(check="replay", finding="The agent's choice satisfies every attribute in the mandate.",
                          cite="mandate.required_attributes vs snapshot")], flags
 
-    t = b.trace
     try:
         original_id, _ = run_policy(t.policy, t.instruction, t.candidates, llm, use_cache=False)
     except (PolicyUnavailable, LLMUnavailable) as exc:
@@ -66,7 +73,8 @@ def run(b: CaseBundle, llm=None) -> tuple[list[Evidence], list[str]]:
         try:
             clarified = llm.clarify(t.instruction, b.claim.text, ambiguous)
         except LLMUnavailable:
-            flags.append("degraded")
+            # Falls back to the heuristic clarifier below, which the benchmark measures. No confidence cap.
+            flags.append("llm_unavailable")
     if clarified == t.instruction:
         clarified = heuristic_clarify(t.instruction, b.claim.text, ambiguous, b.snapshot.attributes, t.candidates)
 

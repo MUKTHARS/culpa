@@ -5,6 +5,7 @@ from __future__ import annotations
 from datetime import timedelta
 
 from core.ids import parse_iso
+from engine.agent_policy import relates_to
 from engine.attributes import diff, fit
 from engine.dsa import count_in_window
 from engine.llm import LLMUnavailable
@@ -19,7 +20,10 @@ def run(b: CaseBundle, llm=None) -> tuple[list[Evidence], list[str]]:
     out: list[Evidence] = []
 
     req = b.mandate.constraints.required_attributes
-    mandate_ok = all(s == "match" for s in fit(req, b.snapshot.attributes).values())
+    # The item satisfies the mandate only if it fits the required attributes *and* is what the buyer asked for:
+    # with no attributes given, socks bought for "shirt" would otherwise count as a perfect fit.
+    mandate_ok = all(s == "match" for s in fit(req, b.snapshot.attributes).values()) and relates_to(
+        b.mandate.text, b.snapshot.title, b.order.category, b.snapshot.attributes)
     d = b.delivery
     delivered_ok = d.delivered and d.attributes is not None and not diff(b.snapshot.attributes, d.attributes)
     approved = b.order.approved_at is not None
@@ -68,7 +72,8 @@ def run(b: CaseBundle, llm=None) -> tuple[list[Evidence], list[str]]:
                                     finding=f"Claim judge: claim is consistent with the evidence ({judge['claim_type']}).",
                                     cite="claim vs evidence (LLM judge)"))
         except LLMUnavailable:
-            flags.append("degraded")
+            # The judge only adds evidence; without it the rule-based checks above still decide. No confidence cap.
+            flags.append("llm_unavailable")
 
     if not out:
         out.append(Evidence(check="claim", finding="No contradiction found between the claim and the evidence.",

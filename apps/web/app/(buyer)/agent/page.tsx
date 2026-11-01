@@ -4,37 +4,72 @@ import { useState } from "react";
 import { agentApi, type ShopInput } from "@/api/agent";
 import { AgentResult } from "@/components/agent/AgentResult/AgentResult";
 import { MandateForm } from "@/components/agent/MandateForm/MandateForm";
-import { Card } from "@/components/ui/Card/Card";
+import { MandatePanel, type MandateStatus } from "@/components/agent/MandatePanel/MandatePanel";
+import { Loader } from "@/components/ui/Loader/Loader";
 import { BUYER_ID_KEY, DEVICE_ID_KEY } from "@/constants/config";
 import { useAsyncAction } from "@/hooks/useAsyncAction";
 import { useLocalId } from "@/hooks/useLocalId";
 import type { ShopResult } from "@/types";
+import styles from "./page.module.css";
 
 export default function AgentPage() {
   const [buyerId] = useLocalId(BUYER_ID_KEY, "buyer");
   const [deviceId] = useLocalId(DEVICE_ID_KEY, "device");
+  const [draft, setDraft] = useState<ShopInput | null>(null);
+  // What was actually signed: the panel shows this, not later edits, once a mandate is signed.
+  const [signed, setSigned] = useState<ShopInput | null>(null);
   const [result, setResult] = useState<ShopResult | null>(null);
   const shop = useAsyncAction(async (input: ShopInput) => {
     setResult(null);
-    setResult(await agentApi.shop(input));
+    setSigned(input);
+    try {
+      setResult(await agentApi.shop(input));
+    } catch (e) {
+      setSigned(null);
+      throw e;
+    }
   });
 
+  const status: MandateStatus = shop.pending ? "signing" : result ? "signed" : "draft";
+  // The panel appears once there is something to show: an example picked, anything typed, or a signed mandate.
+  const drafting = Boolean(
+    draft &&
+      (draft.instruction.trim() || draft.max_amount || draft.category || Object.keys(draft.required_attributes).length),
+  );
+  const showPanel = drafting || Boolean(signed) || shop.pending;
+
   return (
-    <main className="page stack">
-      <div>
-        <h1>Buyer agent</h1>
-        <p className="muted">
-          Tell the agent what to buy. Your instruction and limits become a signed mandate that Culpa uses as evidence.
+    <main className={`page ${styles.page}`}>
+      <header className={styles.intro}>
+        <h1 className={styles.title}>Buyer agent</h1>
+        <p className={styles.lead}>
+          Describe what you want and set the limits. The agent picks one item, and nothing is charged until you approve
+          the cart on PayPal.
         </p>
-      </div>
-      <div className="grid-2">
-        <Card title="Mandate">
-          <MandateForm buyerId={buyerId} deviceId={deviceId} pending={shop.pending} onSubmit={(i) => shop.run(i)} />
-          {shop.error && <p className="error" style={{ marginTop: 12 }}>{shop.error}</p>}
-        </Card>
-        <Card title="Agent's choice">
-          {result ? <AgentResult result={result} /> : <p className="muted">The agent's pick will appear here.</p>}
-        </Card>
+      </header>
+
+      <div className={styles.layout}>
+        <section className={styles.compose} aria-label="Write the mandate">
+          <MandateForm buyerId={buyerId} deviceId={deviceId} pending={shop.pending} onSubmit={(i) => shop.run(i)}
+                       onDraftChange={setDraft} />
+          {shop.error && <p className={`error ${styles.error}`}>{shop.error}</p>}
+        </section>
+
+        {showPanel && (
+          <div className={styles.side}>
+            <MandatePanel mandate={signed ?? draft} status={status}>
+              {result ? (
+                <AgentResult result={result} />
+              ) : shop.pending ? (
+                <Loader label="The agent is comparing products against your limits…" />
+              ) : (
+                <p className={styles.waiting}>
+                  Once you sign, the agent&apos;s pick appears here with its reasoning and a PayPal approval button.
+                </p>
+              )}
+            </MandatePanel>
+          </div>
+        )}
       </div>
     </main>
   );

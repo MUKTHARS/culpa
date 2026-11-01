@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-01T09:20:12Z",
+  "generated_at": "2026-11-01T12:29:43Z",
   "n_cases": 150,
   "n_hard": 30,
   "systems": [
@@ -45,7 +45,7 @@
           }
         }
       },
-      "ms_per_case": 0.021,
+      "ms_per_case": 0.023,
       "predictions": [
         {
           "id": "F1-000",
@@ -986,7 +986,7 @@
           }
         }
       },
-      "ms_per_case": 0.058,
+      "ms_per_case": 0.066,
       "predictions": [
         {
           "id": "F1-000",
@@ -2077,7 +2077,7 @@
           }
         }
       },
-      "ms_per_case": 0.076,
+      "ms_per_case": 0.086,
       "predictions": [
         {
           "id": "F1-000",

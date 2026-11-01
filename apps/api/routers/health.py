@@ -6,6 +6,7 @@ from core.config import get_settings
 from core.database import ping
 from core.redis_client import get_redis
 from core.resilience import breakers
+from services.llm_service import get_llm
 
 router = APIRouter(tags=["health"])
 
@@ -25,12 +26,13 @@ def readyz():
 @router.get("/system/status")
 def system_status():
     s = get_settings()
+    llm = get_llm()
     return {
         "env": s.app_env,
         "paypal": {"configured": s.paypal_configured, "env": s.paypal_env,
                    "webhook_verification": bool(s.paypal_webhook_id), "breaker": breakers["paypal"].state},
         "llm": {"configured": s.llm_configured, "judge_model": s.llm_judge_model, "fast_model": s.llm_fast_model,
-                "breaker": breakers["claude"].state},
+                "breaker": breakers["claude"].state, "unavailable_reason": llm.unavailable_reason if llm else None},
         "queue": {"mode": queue.queue_mode(), "depth": queue.depth()},
         "auto_settle": s.auto_settle,
         "confidence_threshold": s.confidence_threshold,

@@ -15,6 +15,13 @@ import { useCase } from "@/hooks/useCases";
 import { FAULT_LABEL, STATUS_TONE, attrs, humanize, money, pct, shortHash } from "@/lib/format";
 import styles from "./page.module.css";
 
+const FLAG_LABEL: Record<string, string> = {
+  llm_unavailable: "Rule-based (Claude unavailable)",
+  decided_by_rules: "Decided by mandate rules",
+  replay_unavailable: "Replay unavailable",
+  nondeterministic: "Agent not reproducible",
+};
+
 export default function CaseDetailPage() {
   const params = useParams<{ id: string }>();
   const { data, error, mutate } = useCase(params?.id);
@@ -22,6 +29,8 @@ export default function CaseDetailPage() {
   if (error) return <p className="error">{error.message}</p>;
   if (!data) return <Loader label="Loading case…" />;
   const v = data.verdict;
+  // Opened but not yet judged: the checks run in the background and can take a few seconds.
+  const analyzing = data.status === "open" || data.status === "analyzing";
 
   return (
     <>
@@ -29,7 +38,9 @@ export default function CaseDetailPage() {
         <div>
           <p className="muted mono">{data.id}{data.paypal_dispute_id ? ` · PayPal ${data.paypal_dispute_id}` : ""}</p>
           <h1>
-            {data.fault_class ? `${data.fault_class} · ${FAULT_LABEL[data.fault_class]}` : "Fault not determined"}
+            {data.fault_class
+              ? `${data.fault_class} · ${FAULT_LABEL[data.fault_class]}`
+              : analyzing ? "Analyzing the dispute…" : "Fault not determined"}
           </h1>
           <div className="row" style={{ marginTop: 8 }}>
             <Badge tone={STATUS_TONE[data.status] ?? "neutral"}>{humanize(data.status)}</Badge>
@@ -37,18 +48,28 @@ export default function CaseDetailPage() {
             <span>{money(data.amount, data.currency)}</span>
             {data.confidence != null && <span className="muted">confidence {pct(data.confidence)}</span>}
             {data.flags.map((f) => (
-              <Badge key={f} tone={f === "decided_by_rules" ? "accent" : "warn"}>{humanize(f)}</Badge>
+              <Badge key={f} tone={f === "decided_by_rules" ? "accent" : "warn"}>{FLAG_LABEL[f] ?? humanize(f)}</Badge>
             ))}
           </div>
         </div>
       </div>
 
       {data.error && <p className="error">{data.error}</p>}
+      {data.flags.includes("llm_unavailable") && (
+        <p className={styles.notice}>
+          Claude was unavailable for this analysis, so the verdict comes from the rule-based checks: the mandate, the
+          listing history, the agent replay and the buyer's record. See Jobs for the reason.
+        </p>
+      )}
 
       <div className={styles.layout}>
         <div className="stack">
           <Card title="Who is at fault" subtitle="Share of responsibility from the weighted evidence.">
-            <FaultSplitBar split={data.split} />
+            {analyzing ? (
+              <Loader label="Checking the mandate, the listing, the agent's decision and the claim…" />
+            ) : (
+              <FaultSplitBar split={data.split} />
+            )}
           </Card>
           <Card title="Buyer's claim" subtitle={humanize(data.reason.toLowerCase())}>
             <blockquote className={styles.claim}>{data.claim_text || "No message from the buyer."}</blockquote>

@@ -30,7 +30,7 @@ export default function MerchantPage() {
         ) : orders.data.length === 0 ? (
           <EmptyState title="No orders yet">Use the buyer agent to place one.</EmptyState>
         ) : (
-          <OrdersTable orders={orders.data} onChange={() => orders.mutate()} />
+          <OrdersTable orders={orders.data} onChange={() => orders.mutate()} allowDispute={false} />
         )}
       </Card>
 

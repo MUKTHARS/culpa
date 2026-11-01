@@ -1,0 +1,85 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  padding-top: var(--space-6);
+}
+
+.intro {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-width: 64ch;
+}
+
+.title {
+  font-size: 28px;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+}
+
+.lead {
+  font-size: 15px;
+  color: var(--ink-2);
+}
+
+/* Compose on the left, the mandate it produces on the right. */
+.layout {
+  display: grid;
+  grid-template-columns: minmax(0, 7fr) minmax(340px, 5fr);
+  gap: var(--space-5);
+  align-items: start;
+}
+
+.compose {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: var(--space-6);
+  min-width: 0;
+}
+
+.error {
+  margin-top: var(--space-4);
+}
+
+.side {
+  grid-column: 2;
+  position: sticky;
+  top: var(--space-5);
+  min-width: 0;
+  animation: appear 180ms ease-out;
+}
+
+@keyframes appear {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .side {
+    animation: none;
+  }
+}
+
+.waiting {
+  color: var(--ink-3);
+  max-width: 44ch;
+}
+
+@media (max-width: 900px) {
+  .layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .side {
+    grid-column: 1;
+    position: static;
+  }
+
+  .compose {
+    padding: var(--space-5);
+  }
+}
