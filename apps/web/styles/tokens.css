@@ -1,0 +1,51 @@
+/* PayPal brand palette: navy #003087, blue #0070BA, light blue #009CDE. */
+:root {
+  --pp-navy: #003087;
+  --pp-navy-deep: #001c64;
+  --pp-blue: #0070ba;
+  --pp-blue-hover: #005ea6;
+  --pp-light-blue: #009cde;
+  --pp-sky: #e6f2fb;
+
+  --ink: #001c64;
+  --ink-2: #2c2e2f;
+  --ink-3: #6c7378;
+  --line: #e1e7eb;
+  --line-strong: #cbd2d6;
+  --paper: #f5f7fa;
+  --surface: #ffffff;
+  --surface-2: #f1f5f9;
+
+  --accent: var(--pp-blue);
+  --accent-hover: var(--pp-blue-hover);
+  --accent-ink: #ffffff;
+  --accent-soft: var(--pp-sky);
+
+  --good: #017a3b;
+  --good-soft: #e3f4ea;
+  --warn: #9a5b00;
+  --warn-soft: #fff4d6;
+  --bad: #d20000;
+  --bad-soft: #fde7e5;
+  --info: var(--pp-navy);
+  --info-soft: #e6ecf8;
+
+  --party-buyer: #c27c0e;
+  --party-merchant: #6d4bc4;
+  --party-agent: var(--pp-blue);
+
+  --radius: 12px;
+  --radius-sm: 8px;
+  --shadow: 0 1px 2px rgba(0, 28, 100, 0.06), 0 4px 16px rgba(0, 28, 100, 0.06);
+
+  /* PayPal's own typefaces are used when installed; otherwise the closest open font (Plus Jakarta Sans). */
+  --font: "PayPal Open", "PayPal Sans Big", "PayPal Sans", var(--font-brand), "Helvetica Neue", Arial, sans-serif;
+  --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+}

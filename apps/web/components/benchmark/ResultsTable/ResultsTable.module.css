@@ -1,0 +1,7 @@
+.best td {
+  background: var(--accent-soft);
+}
+
+.money {
+  font-weight: 700;
+}

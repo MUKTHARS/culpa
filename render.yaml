@@ -1,0 +1,69 @@
+# Render Blueprint: API (with in-process worker), web, Postgres and Key Value (Redis).
+# New > Blueprint > pick this repo. Fill the `sync: false` secrets in the dashboard.
+# For heavier load, add a separate `type: worker` service with dockerCommand `python -m workers.runner`
+# and set RUN_WORKERS_IN_PROCESS=false on the API.
+
+services:
+  - type: web
+    name: culpa-api
+    runtime: docker
+    dockerfilePath: ./apps/api/Dockerfile
+    dockerContext: .
+    healthCheckPath: /healthz
+    envVars:
+      - key: APP_ENV
+        value: production
+      - key: DATABASE_URL
+        fromDatabase:
+          name: culpa-db
+          property: connectionString
+      - key: REDIS_URL
+        fromService:
+          type: keyvalue
+          name: culpa-redis
+          property: connectionString
+      - key: QUEUE_MODE
+        value: auto
+      - key: RUN_WORKERS_IN_PROCESS
+        value: "true"
+      - key: PAYPAL_ENV
+        value: sandbox
+      - key: PAYPAL_CLIENT_ID
+        sync: false
+      - key: PAYPAL_CLIENT_SECRET
+        sync: false
+      - key: PAYPAL_WEBHOOK_ID
+        sync: false
+      - key: ANTHROPIC_API_KEY
+        sync: false
+      - key: MANDATE_SIGNING_SECRET
+        generateValue: true
+      - key: ANALYST_USERNAME
+        sync: false
+      - key: ANALYST_PASSWORD
+        sync: false
+      - key: WEB_ORIGIN
+        sync: false
+      - key: PUBLIC_API_URL
+        sync: false
+      - key: PUBLIC_WEB_URL
+        sync: false
+
+  - type: web
+    name: culpa-web
+    runtime: docker
+    dockerfilePath: ./apps/web/Dockerfile
+    dockerContext: .
+    envVars:
+      - key: NEXT_PUBLIC_API_URL
+        sync: false
+
+  - type: keyvalue
+    name: culpa-redis
+    maxmemoryPolicy: volatile-lru
+    ipAllowList: []
+
+databases:
+  - name: culpa-db
+    databaseName: culpa
+    user: culpa

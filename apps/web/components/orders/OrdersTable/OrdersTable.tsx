@@ -1,0 +1,83 @@
+"use client";
+
+import { useState } from "react";
+import { ordersApi } from "@/api/orders";
+import { Badge } from "@/components/ui/Badge/Badge";
+import { Button } from "@/components/ui/Button/Button";
+import { SimulateDispute } from "@/components/orders/SimulateDispute/SimulateDispute";
+import { ProductImage } from "@/components/ui/ProductImage/ProductImage";
+import { useAsyncAction } from "@/hooks/useAsyncAction";
+import { attrs, money, shortHash, when } from "@/lib/format";
+import type { Order } from "@/types";
+import styles from "./OrdersTable.module.css";
+
+export function OrdersTable({ orders, onChange }: { orders: Order[]; onChange: () => void }) {
+  const [disputing, setDisputing] = useState<string | null>(null);
+  const ship = useAsyncAction(async (id: string) => {
+    await ordersApi.ship(id);
+    onChange();
+  });
+
+  return (
+    <div className="stack">
+      {ship.error && <p className="error">{ship.error}</p>}
+      <div className="scroll-x">
+        <table className="table">
+          <thead>
+            <tr>
+              <th>Created</th>
+              <th>Item at purchase</th>
+              <th>Delivered</th>
+              <th>Amount</th>
+              <th>Evidence root</th>
+              <th>Status</th>
+              <th />
+            </tr>
+          </thead>
+          <tbody>
+            {orders.map((o) => (
+              <tr key={o.id}>
+                <td>{when(o.created_at)}</td>
+                <td>
+                  <div className={styles.item}>
+                    <ProductImage src={o.product_image_url} alt={o.product_title} size="sm" />
+                    <div>
+                      <strong>{o.product_title}</strong>
+                      <div className="muted">{attrs(o.snapshot_attributes)}</div>
+                    </div>
+                  </div>
+                </td>
+                <td>{o.delivered ? attrs(o.delivered_attributes) : <span className="muted">Not shipped</span>}</td>
+                <td>{money(o.amount, o.currency)}</td>
+                <td className="mono">{shortHash(o.evidence_root)}</td>
+                <td>
+                  <div className={styles.badges}>
+                    <Badge tone={o.status === "captured" ? "good" : "neutral"}>{o.status}</Badge>
+                    {o.simulated && <Badge tone="warn">simulated</Badge>}
+                  </div>
+                </td>
+                <td>
+                  <div className={styles.actions}>
+                    {o.status === "captured" && !o.shipped_at && (
+                      <Button size="sm" variant="secondary" onClick={() => ship.run(o.id)} loading={ship.pending}>
+                        Ship
+                      </Button>
+                    )}
+                    {o.status === "captured" && (
+                      <Button size="sm" onClick={() => setDisputing(disputing === o.id ? null : o.id)}>
+                        {disputing === o.id ? "Close" : "Open dispute"}
+                      </Button>
+                    )}
+                  </div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      {disputing && (
+        <SimulateDispute orderId={disputing} onDone={() => { setDisputing(null); onChange(); }} />
+      )}
+    </div>
+  );
+}

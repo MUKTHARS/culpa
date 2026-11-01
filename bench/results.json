@@ -1,0 +1,3135 @@
+{
+  "generated_at": "2026-11-01T09:20:12Z",
+  "n_cases": 150,
+  "n_hard": 30,
+  "systems": [
+    {
+      "name": "claim_keywords",
+      "metrics": {
+        "n": 150,
+        "accuracy": 0.733,
+        "macro_f1": 0.698,
+        "wrong_money_rate": 0.267,
+        "escalation_rate": 0.0,
+        "auto_decided_accuracy": 0.733,
+        "friendly_fraud_recall": 0.0,
+        "false_accusation_rate": 0.08,
+        "accuracy_by_difficulty": {
+          "standard": 0.833,
+          "hard": 0.333
+        },
+        "confusion": {
+          "F1": {
+            "F1": 20,
+            "F6": 5
+          },
+          "F2": {
+            "F2": 20,
+            "F6": 5
+          },
+          "F3": {
+            "F3": 25
+          },
+          "F4": {
+            "F4": 20,
+            "F2": 5
+          },
+          "F5": {
+            "F5": 25
+          },
+          "F6": {
+            "F4": 10,
+            "F2": 10,
+            "F1": 4,
+            "F5": 1
+          }
+        }
+      },
+      "ms_per_case": 0.021,
+      "predictions": [
+        {
+          "id": "F1-000",
+          "pred": "F1",
+          "action": "refund_full",
+          "bearer": "agent_provider"
+        },
+        {
+          "id": "F1-001",
+          "pred": "F1",
+          "action": "refund_full",
+          "bearer": "agent_provider"
+        },
+        {
+          "id": "F1-002",
+          "pred": "F1",
+          "action": "refund_full",
+          "bearer": "agent_provider"
+        },
+        {
+          "id": "F1-003",
+          "pred": "F1",
+          "action": "refund_full",
+          "bearer": "agent_provider"
+        },
+        {
+          "id": "F1-004",
+          "pred": "F1",
+          "action": "refund_full",
+          "bearer": "agent_provider"
+        },
+        {
+          "id": "F1-005",
+          "pred": "F1",
+          "action": "refund_full",
+          "bearer": "agent_provider"
+        },
+        {
+          "id": "F1-006",
+          "pred": "F1",
+          "action": "refund_full",
+          "bearer": "agent_provider"
+        },
+        {
+          "id": "F1-007",
+          "pred": "F1",
+          "action": "refund_full",
+          "bearer": "agent_provider"
+        },
+        {
+          "id": "F1-008",
+          "pred": "F1",
+          "action": "refund_full",
+          "bearer": "agent_provider"
+        },
+        {
+          "id": "F1-009",
+          "pred": "F1",
+          "action": "refund_full",
+          "bearer": "agent_provider"
+        },
+        {
+          "id": "F1-010",
+          "pred": "F1",
+          "action": "refund_full",
+          "bearer": "agent_provider"
+        },
+        {
+          "id": "F1-011",
+          "pred": "F1",
+          "action": "refund_full",
+          "bearer": "agent_provider"
+        },
+        {
+          "id": "F1-012",
+          "pred": "F1",
+          "action": "refund_full",
+          "bearer": "agent_provider"
+        },
+        {
+          "id": "F1-013",
+          "pred": "F1",
+          "action": "refund_full",
+          "bearer": "agent_provider"
+        },
+        {
+          "id": "F1-014",
+          "pred": "F1",
+          "action": "refund_full",
+          "bearer": "agent_provider"
+        },
+        {
+          "id": "F1-015",
+          "pred": "F1",
+          "action": "refund_full",
+          "bearer": "agent_provider"
+        },
+        {
+          "id": "F1-016",
+          "pred": "F1",
+          "action": "refund_full",
+          "bearer": "agent_provider"
+        },
+        {
+          "id": "F1-017",
+          "pred": "F1",
+          "action": "refund_full",
+          "bearer": "agent_provider"
+        },
+        {
+          "id": "F1-018",
+          "pred": "F1",
+          "action": "refund_full",
+          "bearer": "agent_provider"
+        },
+        {
+          "id": "F1-019",
+          "pred": "F1",
+          "action": "refund_full",
+          "bearer": "agent_provider"
+        },
+        {
+          "id": "F1-020",
+          "pred": "F6",
+          "action": "contest",
+          "bearer": "buyer"
+        },
+        {
+          "id": "F1-021",
+          "pred": "F6",
+          "action": "contest",
+          "bearer": "buyer"
+        },
+        {
+          "id": "F1-022",
+          "pred": "F6",
+          "action": "contest",
+          "bearer": "buyer"
+        },
+        {
+          "id": "F1-023",
+          "pred": "F6",
+          "action": "contest",
+          "bearer": "buyer"
+        },
+        {
+          "id": "F1-024",
+          "pred": "F6",
+          "action": "contest",
+          "bearer": "buyer"
+        },
+        {
+          "id": "F2-000",
+          "pred": "F2",
+          "action": "refund_full",
+          "bearer": "agent_provider"
+        },
+        {
+          "id": "F2-001",
+          "pred": "F2",
+          "action": "refund_full",
+          "bearer": "agent_provider"
+        },
+        {
+          "id": "F2-002",
+          "pred": "F2",
+          "action": "refund_full",
+          "bearer": "agent_provider"
+        },
+        {
+          "id": "F2-003",
+          "pred": "F2",
+          "action": "refund_full",
+          "bearer": "agent_provider"
+        },
+        {
+          "id": "F2-004",
+          "pred": "F2",
+          "action": "refund_full",
+          "bearer": "agent_provider"
+        },
+        {
+          "id": "F2-005",
+          "pred": "F2",
+          "action": "refund_full",
+          "bearer": "agent_provider"
+        },
+        {
+          "id": "F2-006",
+          "pred": "F2",
+          "action": "refund_full",
+          "bearer": "agent_provider"
+        },
+        {
+          "id": "F2-007",
+          "pred": "F2",
+          "action": "refund_full",
+          "bearer": "agent_provider"
+        },
+        {
+          "id": "F2-008",
+          "pred": "F2",
+          "action": "refund_full",
+          "bearer": "agent_provider"
+        },
+        {
+          "id": "F2-009",
+          "pred": "F2",
+          "action": "refund_full",
+          "bearer": "agent_provider"
+        },
+        {
+          "id": "F2-010",
+          "pred": "F2",
+          "action": "refund_full",
+          "bearer": "agent_provider"
+        },
+        {
+          "id": "F2-011",
+          "pred": "F2",
+          "action": "refund_full",
+          "bearer": "agent_provider"
+        },
+        {
+          "id": "F2-012",
+          "pred": "F2",
+          "action": "refund_full",
+          "bearer": "agent_provider"
+        },
+        {
+          "id": "F2-013",
+          "pred": "F2",
+          "action": "refund_full",
+          "bearer": "agent_provider"
+        },
+        {
+          "id": "F2-014",
+          "pred": "F2",
+          "action": "refund_full",
+          "bearer": "agent_provider"
+        },
+        {
+          "id": "F2-015",
+          "pred": "F2",
+          "action": "refund_full",
+          "bearer": "agent_provider"
+        },
+        {
+          "id": "F2-016",
+          "pred": "F2",
+          "action": "refund_full",
+          "bearer": "agent_provider"
+        },
+        {
+          "id": "F2-017",
+          "pred": "F2",
+          "action": "refund_full",
+          "bearer": "agent_provider"
+        },
+        {
+          "id": "F2-018",
+          "pred": "F2",
+          "action": "refund_full",
+          "bearer": "agent_provider"
+        },
+        {
+          "id": "F2-019",
+          "pred": "F2",
+          "action": "refund_full",
+          "bearer": "agent_provider"
+        },
+        {
+          "id": "F2-020",
+          "pred": "F6",
+          "action": "contest",
+          "bearer": "buyer"
+        },
+        {
+          "id": "F2-021",
+          "pred": "F6",
+          "action": "contest",
+          "bearer": "buyer"
+        },
+        {
+          "id": "F2-022",
+          "pred": "F6",
+          "action": "contest",
+          "bearer": "buyer"
+        },
+        {
+          "id": "F2-023",
+          "pred": "F6",
+          "action": "contest",
+          "bearer": "buyer"
+        },
+        {
+          "id": "F2-024",
+          "pred": "F6",
+          "action": "contest",
+          "bearer": "buyer"
+        },
+        {
+          "id": "F3-000",
+          "pred": "F3",
+          "action": "refund_partial",
+          "bearer": "split"
+        },
+        {
+          "id": "F3-001",
+          "pred": "F3",
+          "action": "refund_partial",
+          "bearer": "split"
+        },
+        {
+          "id": "F3-002",
+          "pred": "F3",
+          "action": "refund_partial",
+          "bearer": "split"
+        },
+        {
+          "id": "F3-003",
+          "pred": "F3",
+          "action": "refund_partial",
+          "bearer": "split"
+        },
+        {
+          "id": "F3-004",
+          "pred": "F3",
+          "action": "refund_partial",
+          "bearer": "split"
+        },
+        {
+          "id": "F3-005",
+          "pred": "F3",
+          "action": "refund_partial",
+          "bearer": "split"
+        },
+        {
+          "id": "F3-006",
+          "pred": "F3",
+          "action": "refund_partial",
+          "bearer": "split"
+        },
+        {
+          "id": "F3-007",
+          "pred": "F3",
+          "action": "refund_partial",
+          "bearer": "split"
+        },
+        {
+          "id": "F3-008",
+          "pred": "F3",
+          "action": "refund_partial",
+          "bearer": "split"
+        },
+        {
+          "id": "F3-009",
+          "pred": "F3",
+          "action": "refund_partial",
+          "bearer": "split"
+        },
+        {
+          "id": "F3-010",
+          "pred": "F3",
+          "action": "refund_partial",
+          "bearer": "split"
+        },
+        {
+          "id": "F3-011",
+          "pred": "F3",
+          "action": "refund_partial",
+          "bearer": "split"
+        },
+        {
+          "id": "F3-012",
+          "pred": "F3",
+          "action": "refund_partial",
+          "bearer": "split"
+        },
+        {
+          "id": "F3-013",
+          "pred": "F3",
+          "action": "refund_partial",
+          "bearer": "split"
+        },
+        {
+          "id": "F3-014",
+          "pred": "F3",
+          "action": "refund_partial",
+          "bearer": "split"
+        },
+        {
+          "id": "F3-015",
+          "pred": "F3",
+          "action": "refund_partial",
+          "bearer": "split"
+        },
+        {
+          "id": "F3-016",
+          "pred": "F3",
+          "action": "refund_partial",
+          "bearer": "split"
+        },
+        {
+          "id": "F3-017",
+          "pred": "F3",
+          "action": "refund_partial",
+          "bearer": "split"
+        },
+        {
+          "id": "F3-018",
+          "pred": "F3",
+          "action": "refund_partial",
+          "bearer": "split"
+        },
+        {
+          "id": "F3-019",
+          "pred": "F3",
+          "action": "refund_partial",
+          "bearer": "split"
+        },
+        {
+          "id": "F3-020",
+          "pred": "F3",
+          "action": "refund_partial",
+          "bearer": "split"
+        },
+        {
+          "id": "F3-021",
+          "pred": "F3",
+          "action": "refund_partial",
+          "bearer": "split"
+        },
+        {
+          "id": "F3-022",
+          "pred": "F3",
+          "action": "refund_partial",
+          "bearer": "split"
+        },
+        {
+          "id": "F3-023",
+          "pred": "F3",
+          "action": "refund_partial",
+          "bearer": "split"
+        },
+        {
+          "id": "F3-024",
+          "pred": "F3",
+          "action": "refund_partial",
+          "bearer": "split"
+        },
+        {
+          "id": "F4-000",
+          "pred": "F4",
+          "action": "refund_full",
+          "bearer": "merchant"
+        },
+        {
+          "id": "F4-001",
+          "pred": "F4",
+          "action": "refund_full",
+          "bearer": "merchant"
+        },
+        {
+          "id": "F4-002",
+          "pred": "F4",
+          "action": "refund_full",
+          "bearer": "merchant"
+        },
+        {
+          "id": "F4-003",
+          "pred": "F4",
+          "action": "refund_full",
+          "bearer": "merchant"
+        },
+        {
+          "id": "F4-004",
+          "pred": "F4",
+          "action": "refund_full",
+          "bearer": "merchant"
+        },
+        {
+          "id": "F4-005",
+          "pred": "F4",
+          "action": "refund_full",
+          "bearer": "merchant"
+        },
+        {
+          "id": "F4-006",
+          "pred": "F4",
+          "action": "refund_full",
+          "bearer": "merchant"
+        },
+        {
+          "id": "F4-007",
+          "pred": "F4",
+          "action": "refund_full",
+          "bearer": "merchant"
+        },
+        {
+          "id": "F4-008",
+          "pred": "F4",
+          "action": "refund_full",
+          "bearer": "merchant"
+        },
+        {
+          "id": "F4-009",
+          "pred": "F4",
+          "action": "refund_full",
+          "bearer": "merchant"
+        },
+        {
+          "id": "F4-010",
+          "pred": "F4",
+          "action": "refund_full",
+          "bearer": "merchant"
+        },
+        {
+          "id": "F4-011",
+          "pred": "F4",
+          "action": "refund_full",
+          "bearer": "merchant"
+        },
+        {
+          "id": "F4-012",
+          "pred": "F4",
+          "action": "refund_full",
+          "bearer": "merchant"
+        },
+        {
+          "id": "F4-013",
+          "pred": "F4",
+          "action": "refund_full",
+          "bearer": "merchant"
+        },
+        {
+          "id": "F4-014",
+          "pred": "F4",
+          "action": "refund_full",
+          "bearer": "merchant"
+        },
+        {
+          "id": "F4-015",
+          "pred": "F4",
+          "action": "refund_full",
+          "bearer": "merchant"
+        },
+        {
+          "id": "F4-016",
+          "pred": "F4",
+          "action": "refund_full",
+          "bearer": "merchant"
+        },
+        {
+          "id": "F4-017",
+          "pred": "F4",
+          "action": "refund_full",
+          "bearer": "merchant"
+        },
+        {
+          "id": "F4-018",
+          "pred": "F4",
+          "action": "refund_full",
+          "bearer": "merchant"
+        },
+        {
+          "id": "F4-019",
+          "pred": "F4",
+          "action": "refund_full",
+          "bearer": "merchant"
+        },
+        {
+          "id": "F4-020",
+          "pred": "F2",
+          "action": "refund_full",
+          "bearer": "agent_provider"
+        },
+        {
+          "id": "F4-021",
+          "pred": "F2",
+          "action": "refund_full",
+          "bearer": "agent_provider"
+        },
+        {
+          "id": "F4-022",
+          "pred": "F2",
+          "action": "refund_full",
+          "bearer": "agent_provider"
+        },
+        {
+          "id": "F4-023",
+          "pred": "F2",
+          "action": "refund_full",
+          "bearer": "agent_provider"
+        },
+        {
+          "id": "F4-024",
+          "pred": "F2",
+          "action": "refund_full",
+          "bearer": "agent_provider"
+        },
+        {
+          "id": "F5-000",
+          "pred": "F5",
+          "action": "refund_full",
+          "bearer": "merchant"
+        },
+        {
+          "id": "F5-001",
+          "pred": "F5",
+          "action": "refund_full",
+          "bearer": "merchant"
+        },
+        {
+          "id": "F5-002",
+          "pred": "F5",
+          "action": "refund_full",
+          "bearer": "merchant"
+        },
+        {
+          "id": "F5-003",
+          "pred": "F5",
+          "action": "refund_full",
+          "bearer": "merchant"
+        },
+        {
+          "id": "F5-004",
+          "pred": "F5",
+          "action": "refund_full",
+          "bearer": "merchant"
+        },
+        {
+          "id": "F5-005",
+          "pred": "F5",
+          "action": "refund_full",
+          "bearer": "merchant"
+        },
+        {
+          "id": "F5-006",
+          "pred": "F5",
+          "action": "refund_full",
+          "bearer": "merchant"
+        },
+        {
+          "id": "F5-007",
+          "pred": "F5",
+          "action": "refund_full",
+          "bearer": "merchant"
+        },
+        {
+          "id": "F5-008",
+          "pred": "F5",
+          "action": "refund_full",
+          "bearer": "merchant"
+        },
+        {
+          "id": "F5-009",
+          "pred": "F5",
+          "action": "refund_full",
+          "bearer": "merchant"
+        },
+        {
+          "id": "F5-010",
+          "pred": "F5",
+          "action": "refund_full",
+          "bearer": "merchant"
+        },
+        {
+          "id": "F5-011",
+          "pred": "F5",
+          "action": "refund_full",
+          "bearer": "merchant"
+        },
+        {
+          "id": "F5-012",
+          "pred": "F5",
+          "action": "refund_full",
+          "bearer": "merchant"
+        },
+        {
+          "id": "F5-013",
+          "pred": "F5",
+          "action": "refund_full",
+          "bearer": "merchant"
+        },
+        {
+          "id": "F5-014",
+          "pred": "F5",
+          "action": "refund_full",
+          "bearer": "merchant"
+        },
+        {
+          "id": "F5-015",
+          "pred": "F5",
+          "action": "refund_full",
+          "bearer": "merchant"
+        },
+        {
+          "id": "F5-016",
+          "pred": "F5",
+          "action": "refund_full",
+          "bearer": "merchant"
+        },
+        {
+          "id": "F5-017",
+          "pred": "F5",
+          "action": "refund_full",
+          "bearer": "merchant"
+        },
+        {
+          "id": "F5-018",
+          "pred": "F5",
+          "action": "refund_full",
+          "bearer": "merchant"
+        },
+        {
+          "id": "F5-019",
+          "pred": "F5",
+          "action": "refund_full",
+          "bearer": "merchant"
+        },
+        {
+          "id": "F5-020",
+          "pred": "F5",
+          "action": "refund_full",
+          "bearer": "merchant"
+        },
+        {
+          "id": "F5-021",
+          "pred": "F5",
+          "action": "refund_full",
+          "bearer": "merchant"
+        },
+        {
+          "id": "F5-022",
+          "pred": "F5",
+          "action": "refund_full",
+          "bearer": "merchant"
+        },
+        {
+          "id": "F5-023",
+          "pred": "F5",
+          "action": "refund_full",
+          "bearer": "merchant"
+        },
+        {
+          "id": "F5-024",
+          "pred": "F5",
+          "action": "refund_full",
+          "bearer": "merchant"
+        },
+        {
+          "id": "F6-000",
+          "pred": "F4",
+          "action": "refund_full",
+          "bearer": "merchant"
+        },
+        {
+          "id": "F6-001",
+          "pred": "F2",
+          "action": "refund_full",
+          "bearer": "agent_provider"
+        },
+        {
+          "id": "F6-002",
+          "pred": "F4",
+          "action": "refund_full",
+          "bearer": "merchant"
+        },
+        {
+          "id": "F6-003",
+          "pred": "F4",
+          "action": "refund_full",
+          "bearer": "merchant"
+        },
+        {
+          "id": "F6-004",
+          "pred": "F4",
+          "action": "refund_full",
+          "bearer": "merchant"
+        },
+        {
+          "id": "F6-005",
+          "pred": "F4",
+          "action": "refund_full",
+          "bearer": "merchant"
+        },
+        {
+          "id": "F6-006",
+          "pred": "F2",
+          "action": "refund_full",
+          "bearer": "agent_provider"
+        },
+        {
+          "id": "F6-007",
+          "pred": "F4",
+          "action": "refund_full",
+          "bearer": "merchant"
+        },
+        {
+          "id": "F6-008",
+          "pred": "F4",
+          "action": "refund_full",
+          "bearer": "merchant"
+        },
+        {
+          "id": "F6-009",
+          "pred": "F2",
+          "action": "refund_full",
+          "bearer": "agent_provider"
+        },
+        {
+          "id": "F6-010",
+          "pred": "F4",
+          "action": "refund_full",
+          "bearer": "merchant"
+        },
+        {
+          "id": "F6-011",
+          "pred": "F4",
+          "action": "refund_full",
+          "bearer": "merchant"
+        },
+        {
+          "id": "F6-012",
+          "pred": "F2",
+          "action": "refund_full",
+          "bearer": "agent_provider"
+        },
+        {
+          "id": "F6-013",
+          "pred": "F2",
+          "action": "refund_full",
+          "bearer": "agent_provider"
+        },
+        {
+          "id": "F6-014",
+          "pred": "F2",
+          "action": "refund_full",
+          "bearer": "agent_provider"
+        },
+        {
+          "id": "F6-015",
+          "pred": "F2",
+          "action": "refund_full",
+          "bearer": "agent_provider"
+        },
+        {
+          "id": "F6-016",
+          "pred": "F2",
+          "action": "refund_full",
+          "bearer": "agent_provider"
+        },
+        {
+          "id": "F6-017",
+          "pred": "F2",
+          "action": "refund_full",
+          "bearer": "agent_provider"
+        },
+        {
+          "id": "F6-018",
+          "pred": "F4",
+          "action": "refund_full",
+          "bearer": "merchant"
+        },
+        {
+          "id": "F6-019",
+          "pred": "F2",
+          "action": "refund_full",
+          "bearer": "agent_provider"
+        },
+        {
+          "id": "F6-020",
+          "pred": "F1",
+          "action": "refund_full",
+          "bearer": "agent_provider"
+        },
+        {
+          "id": "F6-021",
+          "pred": "F5",
+          "action": "refund_full",
+          "bearer": "merchant"
+        },
+        {
+          "id": "F6-022",
+          "pred": "F1",
+          "action": "refund_full",
+          "bearer": "agent_provider"
+        },
+        {
+          "id": "F6-023",
+          "pred": "F1",
+          "action": "refund_full",
+          "bearer": "agent_provider"
+        },
+        {
+          "id": "F6-024",
+          "pred": "F1",
+          "action": "refund_full",
+          "bearer": "agent_provider"
+        }
+      ]
+    },
+    {
+      "name": "culpa_no_replay",
+      "metrics": {
+        "n": 150,
+        "accuracy": 0.653,
+        "macro_f1": 0.66,
+        "wrong_money_rate": 0.0,
+        "escalation_rate": 0.38,
+        "auto_decided_accuracy": 1.0,
+        "friendly_fraud_recall": 1.0,
+        "false_accusation_rate": 0.0,
+        "accuracy_by_difficulty": {
+          "standard": 0.667,
+          "hard": 0.6
+        },
+        "confusion": {
+          "F1": {
+            "F1": 25
+          },
+          "F2": {
+            "none": 25
+          },
+          "F3": {
+            "none": 25
+          },
+          "F4": {
+            "F4": 23,
+            "none": 2
+          },
+          "F5": {
+            "F5": 25
+          },
+          "F6": {
+            "F6": 25
+          }
+        }
+      },
+      "ms_per_case": 0.058,
+      "predictions": [
+        {
+          "id": "F1-000",
+          "pred": "F1",
+          "action": "refund_full",
+          "bearer": "agent_provider",
+          "confidence": 1.0
+        },
+        {
+          "id": "F1-001",
+          "pred": "F1",
+          "action": "refund_full",
+          "bearer": "agent_provider",
+          "confidence": 1.0
+        },
+        {
+          "id": "F1-002",
+          "pred": "F1",
+          "action": "refund_full",
+          "bearer": "agent_provider",
+          "confidence": 1.0
+        },
+        {
+          "id": "F1-003",
+          "pred": "F1",
+          "action": "refund_full",
+          "bearer": "agent_provider",
+          "confidence": 1.0
+        },
+        {
+          "id": "F1-004",
+          "pred": "F1",
+          "action": "refund_full",
+          "bearer": "agent_provider",
+          "confidence": 1.0
+        },
+        {
+          "id": "F1-005",
+          "pred": "F1",
+          "action": "refund_full",
+          "bearer": "agent_provider",
+          "confidence": 1.0
+        },
+        {
+          "id": "F1-006",
+          "pred": "F1",
+          "action": "refund_full",
+          "bearer": "agent_provider",
+          "confidence": 1.0
+        },
+        {
+          "id": "F1-007",
+          "pred": "F1",
+          "action": "refund_full",
+          "bearer": "agent_provider",
+          "confidence": 1.0
+        },
+        {
+          "id": "F1-008",
+          "pred": "F1",
+          "action": "refund_full",
+          "bearer": "agent_provider",
+          "confidence": 1.0
+        },
+        {
+          "id": "F1-009",
+          "pred": "F1",
+          "action": "refund_full",
+          "bearer": "agent_provider",
+          "confidence": 1.0
+        },
+        {
+          "id": "F1-010",
+          "pred": "F1",
+          "action": "refund_full",
+          "bearer": "agent_provider",
+          "confidence": 1.0
+        },
+        {
+          "id": "F1-011",
+          "pred": "F1",
+          "action": "refund_full",
+          "bearer": "agent_provider",
+          "confidence": 1.0
+        },
+        {
+          "id": "F1-012",
+          "pred": "F1",
+          "action": "refund_full",
+          "bearer": "agent_provider",
+          "confidence": 1.0
+        },
+        {
+          "id": "F1-013",
+          "pred": "F1",
+          "action": "refund_full",
+          "bearer": "agent_provider",
+          "confidence": 1.0
+        },
+        {
+          "id": "F1-014",
+          "pred": "F1",
+          "action": "refund_full",
+          "bearer": "agent_provider",
+          "confidence": 1.0
+        },
+        {
+          "id": "F1-015",
+          "pred": "F1",
+          "action": "refund_full",
+          "bearer": "agent_provider",
+          "confidence": 1.0
+        },
+        {
+          "id": "F1-016",
+          "pred": "F1",
+          "action": "refund_full",
+          "bearer": "agent_provider",
+          "confidence": 1.0
+        },
+        {
+          "id": "F1-017",
+          "pred": "F1",
+          "action": "refund_full",
+          "bearer": "agent_provider",
+          "confidence": 1.0
+        },
+        {
+          "id": "F1-018",
+          "pred": "F1",
+          "action": "refund_full",
+          "bearer": "agent_provider",
+          "confidence": 1.0
+        },
+        {
+          "id": "F1-019",
+          "pred": "F1",
+          "action": "refund_full",
+          "bearer": "agent_provider",
+          "confidence": 1.0
+        },
+        {
+          "id": "F1-020",
+          "pred": "F1",
+          "action": "refund_full",
+          "bearer": "agent_provider",
+          "confidence": 1.0
+        },
+        {
+          "id": "F1-021",
+          "pred": "F1",
+          "action": "refund_full",
+          "bearer": "agent_provider",
+          "confidence": 1.0
+        },
+        {
+          "id": "F1-022",
+          "pred": "F1",
+          "action": "refund_full",
+          "bearer": "agent_provider",
+          "confidence": 1.0
+        },
+        {
+          "id": "F1-023",
+          "pred": "F1",
+          "action": "refund_full",
+          "bearer": "agent_provider",
+          "confidence": 1.0
+        },
+        {
+          "id": "F1-024",
+          "pred": "F1",
+          "action": "refund_full",
+          "bearer": "agent_provider",
+          "confidence": 1.0
+        },
+        {
+          "id": "F2-000",
+          "pred": null,
+          "action": "review",
+          "bearer": null,
+          "confidence": 0.0
+        },
+        {
+          "id": "F2-001",
+          "pred": null,
+          "action": "review",
+          "bearer": null,
+          "confidence": 0.0
+        },
+        {
+          "id": "F2-002",
+          "pred": null,
+          "action": "review",
+          "bearer": null,
+          "confidence": 0.0
+        },
+        {
+          "id": "F2-003",
+          "pred": null,
+          "action": "review",
+          "bearer": null,
+          "confidence": 0.0
+        },
+        {
+          "id": "F2-004",
+          "pred": null,
+          "action": "review",
+          "bearer": null,
+          "confidence": 0.0
+        },
+        {
+          "id": "F2-005",
+          "pred": null,
+          "action": "review",
+          "bearer": null,
+          "confidence": 0.0
+        },
+        {
+          "id": "F2-006",
+          "pred": null,
+          "action": "review",
+          "bearer": null,
+          "confidence": 0.0
+        },
+        {
+          "id": "F2-007",
+          "pred": null,
+          "action": "review",
+          "bearer": null,
+          "confidence": 0.0
+        },
+        {
+          "id": "F2-008",
+          "pred": null,
+          "action": "review",
+          "bearer": null,
+          "confidence": 0.0
+        },
+        {
+          "id": "F2-009",
+          "pred": null,
+          "action": "review",
+          "bearer": null,
+          "confidence": 0.0
+        },
+        {
+          "id": "F2-010",
+          "pred": null,
+          "action": "review",
+          "bearer": null,
+          "confidence": 0.0
+        },
+        {
+          "id": "F2-011",
+          "pred": null,
+          "action": "review",
+          "bearer": null,
+          "confidence": 0.0
+        },
+        {
+          "id": "F2-012",
+          "pred": null,
+          "action": "review",
+          "bearer": null,
+          "confidence": 0.0
+        },
+        {
+          "id": "F2-013",
+          "pred": null,
+          "action": "review",
+          "bearer": null,
+          "confidence": 0.0
+        },
+        {
+          "id": "F2-014",
+          "pred": null,
+          "action": "review",
+          "bearer": null,
+          "confidence": 0.0
+        },
+        {
+          "id": "F2-015",
+          "pred": null,
+          "action": "review",
+          "bearer": null,
+          "confidence": 0.0
+        },
+        {
+          "id": "F2-016",
+          "pred": null,
+          "action": "review",
+          "bearer": null,
+          "confidence": 0.0
+        },
+        {
+          "id": "F2-017",
+          "pred": null,
+          "action": "review",
+          "bearer": null,
+          "confidence": 0.0
+        },
+        {
+          "id": "F2-018",
+          "pred": null,
+          "action": "review",
+          "bearer": null,
+          "confidence": 0.0
+        },
+        {
+          "id": "F2-019",
+          "pred": null,
+          "action": "review",
+          "bearer": null,
+          "confidence": 0.0
+        },
+        {
+          "id": "F2-020",
+          "pred": null,
+          "action": "review",
+          "bearer": null,
+          "confidence": 0.0
+        },
+        {
+          "id": "F2-021",
+          "pred": null,
+          "action": "review",
+          "bearer": null,
+          "confidence": 0.0
+        },
+        {
+          "id": "F2-022",
+          "pred": null,
+          "action": "review",
+          "bearer": null,
+          "confidence": 0.0
+        },
+        {
+          "id": "F2-023",
+          "pred": null,
+          "action": "review",
+          "bearer": null,
+          "confidence": 0.0
+        },
+        {
+          "id": "F2-024",
+          "pred": null,
+          "action": "review",
+          "bearer": null,
+          "confidence": 0.0
+        },
+        {
+          "id": "F3-000",
+          "pred": null,
+          "action": "review",
+          "bearer": null,
+          "confidence": 0.0
+        },
+        {
+          "id": "F3-001",
+          "pred": null,
+          "action": "review",
+          "bearer": null,
+          "confidence": 0.0
+        },
+        {
+          "id": "F3-002",
+          "pred": null,
+          "action": "review",
+          "bearer": null,
+          "confidence": 0.0
+        },
+        {
+          "id": "F3-003",
+          "pred": null,
+          "action": "review",
+          "bearer": null,
+          "confidence": 0.0
+        },
+        {
+          "id": "F3-004",
+          "pred": null,
+          "action": "review",
+          "bearer": null,
+          "confidence": 0.0
+        },
+        {
+          "id": "F3-005",
+          "pred": null,
+          "action": "review",
+          "bearer": null,
+          "confidence": 0.0
+        },
+        {
+          "id": "F3-006",
+          "pred": null,
+          "action": "review",
+          "bearer": null,
+          "confidence": 0.0
+        },
+        {
+          "id": "F3-007",
+          "pred": null,
+          "action": "review",
+          "bearer": null,
+          "confidence": 0.0
+        },
+        {
+          "id": "F3-008",
+          "pred": null,
+          "action": "review",
+          "bearer": null,
+          "confidence": 0.0
+        },
+        {
+          "id": "F3-009",
+          "pred": null,
+          "action": "review",
+          "bearer": null,
+          "confidence": 0.0
+        },
+        {
+          "id": "F3-010",
+          "pred": null,
+          "action": "review",
+          "bearer": null,
+          "confidence": 0.0
+        },
+        {
+          "id": "F3-011",
+          "pred": null,
+          "action": "review",
+          "bearer": null,
+          "confidence": 0.0
+        },
+        {
+          "id": "F3-012",
+          "pred": null,
+          "action": "review",
+          "bearer": null,
+          "confidence": 0.0
+        },
+        {
+          "id": "F3-013",
+          "pred": null,
+          "action": "review",
+          "bearer": null,
+          "confidence": 0.0
+        },
+        {
+          "id": "F3-014",
+          "pred": null,
+          "action": "review",
+          "bearer": null,
+          "confidence": 0.0
+        },
+        {
+          "id": "F3-015",
+          "pred": null,
+          "action": "review",
+          "bearer": null,
+          "confidence": 0.0
+        },
+        {
+          "id": "F3-016",
+          "pred": null,
+          "action": "review",
+          "bearer": null,
+          "confidence": 0.0
+        },
+        {
+          "id": "F3-017",
+          "pred": null,
+          "action": "review",
+          "bearer": null,
+          "confidence": 0.0
+        },
+        {
+          "id": "F3-018",
+          "pred": null,
+          "action": "review",
+          "bearer": null,
+          "confidence": 0.0
+        },
+        {
+          "id": "F3-019",
+          "pred": null,
+          "action": "review",
+          "bearer": null,
+          "confidence": 0.0
+        },
+        {
+          "id": "F3-020",
+          "pred": null,
+          "action": "review",
+          "bearer": null,
+          "confidence": 0.0
+        },
+        {
+          "id": "F3-021",
+          "pred": null,
+          "action": "review",
+          "bearer": null,
+          "confidence": 0.0
+        },
+        {
+          "id": "F3-022",
+          "pred": null,
+          "action": "review",
+          "bearer": null,
+          "confidence": 0.0
+        },
+        {
+          "id": "F3-023",
+          "pred": null,
+          "action": "review",
+          "bearer": null,
+          "confidence": 0.0
+        },
+        {
+          "id": "F3-024",
+          "pred": null,
+          "action": "review",
+          "bearer": null,
+          "confidence": 0.0
+        },
+        {
+          "id": "F4-000",
+          "pred": "F4",
+          "action": "refund_full",
+          "bearer": "merchant",
+          "confidence": 0.97
+        },
+        {
+          "id": "F4-001",
+          "pred": "F4",
+          "action": "refund_full",
+          "bearer": "merchant",
+          "confidence": 0.97
+        },
+        {
+          "id": "F4-002",
+          "pred": "F4",
+          "action": "refund_full",
+          "bearer": "merchant",
+          "confidence": 0.97
+        },
+        {
+          "id": "F4-003",
+          "pred": "F4",
+          "action": "refund_full",
+          "bearer": "merchant",
+          "confidence": 0.97
+        },
+        {
+          "id": "F4-004",
+          "pred": "F4",
+          "action": "refund_full",
+          "bearer": "merchant",
+          "confidence": 0.97
+        },
+        {
+          "id": "F4-005",
+          "pred": "F4",
+          "action": "refund_full",
+          "bearer": "merchant",
+          "confidence": 0.97
+        },
+        {
+          "id": "F4-006",
+          "pred": "F4",
+          "action": "refund_full",
+          "bearer": "merchant",
+          "confidence": 0.97
+        },
+        {
+          "id": "F4-007",
+          "pred": "F4",
+          "action": "refund_full",
+          "bearer": "merchant",
+          "confidence": 0.97
+        },
+        {
+          "id": "F4-008",
+          "pred": "F4",
+          "action": "refund_full",
+          "bearer": "merchant",
+          "confidence": 0.97
+        },
+        {
+          "id": "F4-009",
+          "pred": "F4",
+          "action": "refund_full",
+          "bearer": "merchant",
+          "confidence": 0.97
+        },
+        {
+          "id": "F4-010",
+          "pred": "F4",
+          "action": "refund_full",
+          "bearer": "merchant",
+          "confidence": 0.97
+        },
+        {
+          "id": "F4-011",
+          "pred": "F4",
+          "action": "refund_full",
+          "bearer": "merchant",
+          "confidence": 0.97
+        },
+        {
+          "id": "F4-012",
+          "pred": "F4",
+          "action": "refund_full",
+          "bearer": "merchant",
+          "confidence": 0.97
+        },
+        {
+          "id": "F4-013",
+          "pred": "F4",
+          "action": "refund_full",
+          "bearer": "merchant",
+          "confidence": 0.97
+        },
+        {
+          "id": "F4-014",
+          "pred": "F4",
+          "action": "refund_full",
+          "bearer": "merchant",
+          "confidence": 0.97
+        },
+        {
+          "id": "F4-015",
+          "pred": "F4",
+          "action": "refund_full",
+          "bearer": "merchant",
+          "confidence": 0.97
+        },
+        {
+          "id": "F4-016",
+          "pred": "F4",
+          "action": "refund_full",
+          "bearer": "merchant",
+          "confidence": 0.97
+        },
+        {
+          "id": "F4-017",
+          "pred": "F4",
+          "action": "refund_full",
+          "bearer": "merchant",
+          "confidence": 0.97
+        },
+        {
+          "id": "F4-018",
+          "pred": "F4",
+          "action": "refund_full",
+          "bearer": "merchant",
+          "confidence": 0.97
+        },
+        {
+          "id": "F4-019",
+          "pred": "F4",
+          "action": "refund_full",
+          "bearer": "merchant",
+          "confidence": 0.97
+        },
+        {
+          "id": "F4-020",
+          "pred": "F4",
+          "action": "refund_full",
+          "bearer": "merchant",
+          "confidence": 0.97
+        },
+        {
+          "id": "F4-021",
+          "pred": null,
+          "action": "review",
+          "bearer": null,
+          "confidence": 0.0
+        },
+        {
+          "id": "F4-022",
+          "pred": "F4",
+          "action": "refund_full",
+          "bearer": "merchant",
+          "confidence": 0.97
+        },
+        {
+          "id": "F4-023",
+          "pred": null,
+          "action": "review",
+          "bearer": null,
+          "confidence": 0.0
+        },
+        {
+          "id": "F4-024",
+          "pred": "F4",
+          "action": "refund_full",
+          "bearer": "merchant",
+          "confidence": 0.97
+        },
+        {
+          "id": "F5-000",
+          "pred": "F5",
+          "action": "refund_full",
+          "bearer": "merchant",
+          "confidence": 0.97
+        },
+        {
+          "id": "F5-001",
+          "pred": "F5",
+          "action": "refund_full",
+          "bearer": "merchant",
+          "confidence": 0.97
+        },
+        {
+          "id": "F5-002",
+          "pred": "F5",
+          "action": "refund_full",
+          "bearer": "merchant",
+          "confidence": 0.97
+        },
+        {
+          "id": "F5-003",
+          "pred": "F5",
+          "action": "refund_full",
+          "bearer": "merchant",
+          "confidence": 0.97
+        },
+        {
+          "id": "F5-004",
+          "pred": "F5",
+          "action": "refund_full",
+          "bearer": "merchant",
+          "confidence": 0.97
+        },
+        {
+          "id": "F5-005",
+          "pred": "F5",
+          "action": "refund_full",
+          "bearer": "merchant",
+          "confidence": 0.97
+        },
+        {
+          "id": "F5-006",
+          "pred": "F5",
+          "action": "refund_full",
+          "bearer": "merchant",
+          "confidence": 0.97
+        },
+        {
+          "id": "F5-007",
+          "pred": "F5",
+          "action": "refund_full",
+          "bearer": "merchant",
+          "confidence": 0.97
+        },
+        {
+          "id": "F5-008",
+          "pred": "F5",
+          "action": "refund_full",
+          "bearer": "merchant",
+          "confidence": 0.97
+        },
+        {
+          "id": "F5-009",
+          "pred": "F5",
+          "action": "refund_full",
+          "bearer": "merchant",
+          "confidence": 0.97
+        },
+        {
+          "id": "F5-010",
+          "pred": "F5",
+          "action": "refund_full",
+          "bearer": "merchant",
+          "confidence": 0.97
+        },
+        {
+          "id": "F5-011",
+          "pred": "F5",
+          "action": "refund_full",
+          "bearer": "merchant",
+          "confidence": 0.97
+        },
+        {
+          "id": "F5-012",
+          "pred": "F5",
+          "action": "refund_full",
+          "bearer": "merchant",
+          "confidence": 0.97
+        },
+        {
+          "id": "F5-013",
+          "pred": "F5",
+          "action": "refund_full",
+          "bearer": "merchant",
+          "confidence": 0.97
+        },
+        {
+          "id": "F5-014",
+          "pred": "F5",
+          "action": "refund_full",
+          "bearer": "merchant",
+          "confidence": 0.97
+        },
+        {
+          "id": "F5-015",
+          "pred": "F5",
+          "action": "refund_full",
+          "bearer": "merchant",
+          "confidence": 0.97
+        },
+        {
+          "id": "F5-016",
+          "pred": "F5",
+          "action": "refund_full",
+          "bearer": "merchant",
+          "confidence": 0.97
+        },
+        {
+          "id": "F5-017",
+          "pred": "F5",
+          "action": "refund_full",
+          "bearer": "merchant",
+          "confidence": 0.97
+        },
+        {
+          "id": "F5-018",
+          "pred": "F5",
+          "action": "refund_full",
+          "bearer": "merchant",
+          "confidence": 0.97
+        },
+        {
+          "id": "F5-019",
+          "pred": "F5",
+          "action": "refund_full",
+          "bearer": "merchant",
+          "confidence": 0.97
+        },
+        {
+          "id": "F5-020",
+          "pred": "F5",
+          "action": "review",
+          "bearer": null,
+          "confidence": 0.75
+        },
+        {
+          "id": "F5-021",
+          "pred": "F5",
+          "action": "review",
+          "bearer": null,
+          "confidence": 0.75
+        },
+        {
+          "id": "F5-022",
+          "pred": "F5",
+          "action": "review",
+          "bearer": null,
+          "confidence": 0.75
+        },
+        {
+          "id": "F5-023",
+          "pred": "F5",
+          "action": "review",
+          "bearer": null,
+          "confidence": 0.75
+        },
+        {
+          "id": "F5-024",
+          "pred": "F5",
+          "action": "review",
+          "bearer": null,
+          "confidence": 0.75
+        },
+        {
+          "id": "F6-000",
+          "pred": "F6",
+          "action": "contest",
+          "bearer": "buyer",
+          "confidence": 0.97
+        },
+        {
+          "id": "F6-001",
+          "pred": "F6",
+          "action": "contest",
+          "bearer": "buyer",
+          "confidence": 0.97
+        },
+        {
+          "id": "F6-002",
+          "pred": "F6",
+          "action": "contest",
+          "bearer": "buyer",
+          "confidence": 0.97
+        },
+        {
+          "id": "F6-003",
+          "pred": "F6",
+          "action": "contest",
+          "bearer": "buyer",
+          "confidence": 0.97
+        },
+        {
+          "id": "F6-004",
+          "pred": "F6",
+          "action": "contest",
+          "bearer": "buyer",
+          "confidence": 0.97
+        },
+        {
+          "id": "F6-005",
+          "pred": "F6",
+          "action": "contest",
+          "bearer": "buyer",
+          "confidence": 0.97
+        },
+        {
+          "id": "F6-006",
+          "pred": "F6",
+          "action": "contest",
+          "bearer": "buyer",
+          "confidence": 0.97
+        },
+        {
+          "id": "F6-007",
+          "pred": "F6",
+          "action": "contest",
+          "bearer": "buyer",
+          "confidence": 0.97
+        },
+        {
+          "id": "F6-008",
+          "pred": "F6",
+          "action": "contest",
+          "bearer": "buyer",
+          "confidence": 0.97
+        },
+        {
+          "id": "F6-009",
+          "pred": "F6",
+          "action": "contest",
+          "bearer": "buyer",
+          "confidence": 0.97
+        },
+        {
+          "id": "F6-010",
+          "pred": "F6",
+          "action": "contest",
+          "bearer": "buyer",
+          "confidence": 0.97
+        },
+        {
+          "id": "F6-011",
+          "pred": "F6",
+          "action": "contest",
+          "bearer": "buyer",
+          "confidence": 0.97
+        },
+        {
+          "id": "F6-012",
+          "pred": "F6",
+          "action": "contest",
+          "bearer": "buyer",
+          "confidence": 0.97
+        },
+        {
+          "id": "F6-013",
+          "pred": "F6",
+          "action": "contest",
+          "bearer": "buyer",
+          "confidence": 0.97
+        },
+        {
+          "id": "F6-014",
+          "pred": "F6",
+          "action": "contest",
+          "bearer": "buyer",
+          "confidence": 0.97
+        },
+        {
+          "id": "F6-015",
+          "pred": "F6",
+          "action": "contest",
+          "bearer": "buyer",
+          "confidence": 0.97
+        },
+        {
+          "id": "F6-016",
+          "pred": "F6",
+          "action": "contest",
+          "bearer": "buyer",
+          "confidence": 0.97
+        },
+        {
+          "id": "F6-017",
+          "pred": "F6",
+          "action": "contest",
+          "bearer": "buyer",
+          "confidence": 0.97
+        },
+        {
+          "id": "F6-018",
+          "pred": "F6",
+          "action": "contest",
+          "bearer": "buyer",
+          "confidence": 0.97
+        },
+        {
+          "id": "F6-019",
+          "pred": "F6",
+          "action": "contest",
+          "bearer": "buyer",
+          "confidence": 0.97
+        },
+        {
+          "id": "F6-020",
+          "pred": "F6",
+          "action": "contest",
+          "bearer": "buyer",
+          "confidence": 0.97
+        },
+        {
+          "id": "F6-021",
+          "pred": "F6",
+          "action": "contest",
+          "bearer": "buyer",
+          "confidence": 0.97
+        },
+        {
+          "id": "F6-022",
+          "pred": "F6",
+          "action": "contest",
+          "bearer": "buyer",
+          "confidence": 0.97
+        },
+        {
+          "id": "F6-023",
+          "pred": "F6",
+          "action": "contest",
+          "bearer": "buyer",
+          "confidence": 0.97
+        },
+        {
+          "id": "F6-024",
+          "pred": "F6",
+          "action": "contest",
+          "bearer": "buyer",
+          "confidence": 0.97
+        }
+      ]
+    },
+    {
+      "name": "culpa_full",
+      "metrics": {
+        "n": 150,
+        "accuracy": 0.987,
+        "macro_f1": 0.993,
+        "wrong_money_rate": 0.0,
+        "escalation_rate": 0.06,
+        "auto_decided_accuracy": 1.0,
+        "friendly_fraud_recall": 1.0,
+        "false_accusation_rate": 0.0,
+        "accuracy_by_difficulty": {
+          "standard": 1.0,
+          "hard": 0.933
+        },
+        "confusion": {
+          "F1": {
+            "F1": 25
+          },
+          "F2": {
+            "F2": 25
+          },
+          "F3": {
+            "F3": 25
+          },
+          "F4": {
+            "F4": 23,
+            "none": 2
+          },
+          "F5": {
+            "F5": 25
+          },
+          "F6": {
+            "F6": 25
+          }
+        }
+      },
+      "ms_per_case": 0.076,
+      "predictions": [
+        {
+          "id": "F1-000",
+          "pred": "F1",
+          "action": "refund_full",
+          "bearer": "agent_provider",
+          "confidence": 1.0
+        },
+        {
+          "id": "F1-001",
+          "pred": "F1",
+          "action": "refund_full",
+          "bearer": "agent_provider",
+          "confidence": 1.0
+        },
+        {
+          "id": "F1-002",
+          "pred": "F1",
+          "action": "refund_full",
+          "bearer": "agent_provider",
+          "confidence": 1.0
+        },
+        {
+          "id": "F1-003",
+          "pred": "F1",
+          "action": "refund_full",
+          "bearer": "agent_provider",
+          "confidence": 1.0
+        },
+        {
+          "id": "F1-004",
+          "pred": "F1",
+          "action": "refund_full",
+          "bearer": "agent_provider",
+          "confidence": 1.0
+        },
+        {
+          "id": "F1-005",
+          "pred": "F1",
+          "action": "refund_full",
+          "bearer": "agent_provider",
+          "confidence": 1.0
+        },
+        {
+          "id": "F1-006",
+          "pred": "F1",
+          "action": "refund_full",
+          "bearer": "agent_provider",
+          "confidence": 1.0
+        },
+        {
+          "id": "F1-007",
+          "pred": "F1",
+          "action": "refund_full",
+          "bearer": "agent_provider",
+          "confidence": 1.0
+        },
+        {
+          "id": "F1-008",
+          "pred": "F1",
+          "action": "refund_full",
+          "bearer": "agent_provider",
+          "confidence": 1.0
+        },
+        {
+          "id": "F1-009",
+          "pred": "F1",
+          "action": "refund_full",
+          "bearer": "agent_provider",
+          "confidence": 1.0
+        },
+        {
+          "id": "F1-010",
+          "pred": "F1",
+          "action": "refund_full",
+          "bearer": "agent_provider",
+          "confidence": 1.0
+        },
+        {
+          "id": "F1-011",
+          "pred": "F1",
+          "action": "refund_full",
+          "bearer": "agent_provider",
+          "confidence": 1.0
+        },
+        {
+          "id": "F1-012",
+          "pred": "F1",
+          "action": "refund_full",
+          "bearer": "agent_provider",
+          "confidence": 1.0
+        },
+        {
+          "id": "F1-013",
+          "pred": "F1",
+          "action": "refund_full",
+          "bearer": "agent_provider",
+          "confidence": 1.0
+        },
+        {
+          "id": "F1-014",
+          "pred": "F1",
+          "action": "refund_full",
+          "bearer": "agent_provider",
+          "confidence": 1.0
+        },
+        {
+          "id": "F1-015",
+          "pred": "F1",
+          "action": "refund_full",
+          "bearer": "agent_provider",
+          "confidence": 1.0
+        },
+        {
+          "id": "F1-016",
+          "pred": "F1",
+          "action": "refund_full",
+          "bearer": "agent_provider",
+          "confidence": 1.0
+        },
+        {
+          "id": "F1-017",
+          "pred": "F1",
+          "action": "refund_full",
+          "bearer": "agent_provider",
+          "confidence": 1.0
+        },
+        {
+          "id": "F1-018",
+          "pred": "F1",
+          "action": "refund_full",
+          "bearer": "agent_provider",
+          "confidence": 1.0
+        },
+        {
+          "id": "F1-019",
+          "pred": "F1",
+          "action": "refund_full",
+          "bearer": "agent_provider",
+          "confidence": 1.0
+        },
+        {
+          "id": "F1-020",
+          "pred": "F1",
+          "action": "refund_full",
+          "bearer": "agent_provider",
+          "confidence": 1.0
+        },
+        {
+          "id": "F1-021",
+          "pred": "F1",
+          "action": "refund_full",
+          "bearer": "agent_provider",
+          "confidence": 1.0
+        },
+        {
+          "id": "F1-022",
+          "pred": "F1",
+          "action": "refund_full",
+          "bearer": "agent_provider",
+          "confidence": 1.0
+        },
+        {
+          "id": "F1-023",
+          "pred": "F1",
+          "action": "refund_full",
+          "bearer": "agent_provider",
+          "confidence": 1.0
+        },
+        {
+          "id": "F1-024",
+          "pred": "F1",
+          "action": "refund_full",
+          "bearer": "agent_provider",
+          "confidence": 1.0
+        },
+        {
+          "id": "F2-000",
+          "pred": "F2",
+          "action": "refund_full",
+          "bearer": "agent_provider",
+          "confidence": 0.97
+        },
+        {
+          "id": "F2-001",
+          "pred": "F2",
+          "action": "refund_full",
+          "bearer": "agent_provider",
+          "confidence": 0.97
+        },
+        {
+          "id": "F2-002",
+          "pred": "F2",
+          "action": "refund_full",
+          "bearer": "agent_provider",
+          "confidence": 0.97
+        },
+        {
+          "id": "F2-003",
+          "pred": "F2",
+          "action": "refund_full",
+          "bearer": "agent_provider",
+          "confidence": 0.97
+        },
+        {
+          "id": "F2-004",
+          "pred": "F2",
+          "action": "refund_full",
+          "bearer": "agent_provider",
+          "confidence": 0.97
+        },
+        {
+          "id": "F2-005",
+          "pred": "F2",
+          "action": "refund_full",
+          "bearer": "agent_provider",
+          "confidence": 0.97
+        },
+        {
+          "id": "F2-006",
+          "pred": "F2",
+          "action": "refund_full",
+          "bearer": "agent_provider",
+          "confidence": 0.97
+        },
+        {
+          "id": "F2-007",
+          "pred": "F2",
+          "action": "refund_full",
+          "bearer": "agent_provider",
+          "confidence": 0.97
+        },
+        {
+          "id": "F2-008",
+          "pred": "F2",
+          "action": "refund_full",
+          "bearer": "agent_provider",
+          "confidence": 0.97
+        },
+        {
+          "id": "F2-009",
+          "pred": "F2",
+          "action": "refund_full",
+          "bearer": "agent_provider",
+          "confidence": 0.97
+        },
+        {
+          "id": "F2-010",
+          "pred": "F2",
+          "action": "refund_full",
+          "bearer": "agent_provider",
+          "confidence": 0.97
+        },
+        {
+          "id": "F2-011",
+          "pred": "F2",
+          "action": "refund_full",
+          "bearer": "agent_provider",
+          "confidence": 0.97
+        },
+        {
+          "id": "F2-012",
+          "pred": "F2",
+          "action": "refund_full",
+          "bearer": "agent_provider",
+          "confidence": 0.97
+        },
+        {
+          "id": "F2-013",
+          "pred": "F2",
+          "action": "refund_full",
+          "bearer": "agent_provider",
+          "confidence": 0.97
+        },
+        {
+          "id": "F2-014",
+          "pred": "F2",
+          "action": "refund_full",
+          "bearer": "agent_provider",
+          "confidence": 0.97
+        },
+        {
+          "id": "F2-015",
+          "pred": "F2",
+          "action": "refund_full",
+          "bearer": "agent_provider",
+          "confidence": 0.97
+        },
+        {
+          "id": "F2-016",
+          "pred": "F2",
+          "action": "refund_full",
+          "bearer": "agent_provider",
+          "confidence": 0.97
+        },
+        {
+          "id": "F2-017",
+          "pred": "F2",
+          "action": "refund_full",
+          "bearer": "agent_provider",
+          "confidence": 0.97
+        },
+        {
+          "id": "F2-018",
+          "pred": "F2",
+          "action": "refund_full",
+          "bearer": "agent_provider",
+          "confidence": 0.97
+        },
+        {
+          "id": "F2-019",
+          "pred": "F2",
+          "action": "refund_full",
+          "bearer": "agent_provider",
+          "confidence": 0.97
+        },
+        {
+          "id": "F2-020",
+          "pred": "F2",
+          "action": "refund_full",
+          "bearer": "agent_provider",
+          "confidence": 0.97
+        },
+        {
+          "id": "F2-021",
+          "pred": "F2",
+          "action": "review",
+          "bearer": null,
+          "confidence": 0.375
+        },
+        {
+          "id": "F2-022",
+          "pred": "F2",
+          "action": "refund_full",
+          "bearer": "agent_provider",
+          "confidence": 0.97
+        },
+        {
+          "id": "F2-023",
+          "pred": "F2",
+          "action": "review",
+          "bearer": null,
+          "confidence": 0.375
+        },
+        {
+          "id": "F2-024",
+          "pred": "F2",
+          "action": "refund_full",
+          "bearer": "agent_provider",
+          "confidence": 0.97
+        },
+        {
+          "id": "F3-000",
+          "pred": "F3",
+          "action": "refund_partial",
+          "bearer": "split",
+          "confidence": 0.97
+        },
+        {
+          "id": "F3-001",
+          "pred": "F3",
+          "action": "refund_partial",
+          "bearer": "split",
+          "confidence": 0.97
+        },
+        {
+          "id": "F3-002",
+          "pred": "F3",
+          "action": "refund_partial",
+          "bearer": "split",
+          "confidence": 0.97
+        },
+        {
+          "id": "F3-003",
+          "pred": "F3",
+          "action": "refund_partial",
+          "bearer": "split",
+          "confidence": 0.97
+        },
+        {
+          "id": "F3-004",
+          "pred": "F3",
+          "action": "refund_partial",
+          "bearer": "split",
+          "confidence": 0.97
+        },
+        {
+          "id": "F3-005",
+          "pred": "F3",
+          "action": "refund_partial",
+          "bearer": "split",
+          "confidence": 0.97
+        },
+        {
+          "id": "F3-006",
+          "pred": "F3",
+          "action": "refund_partial",
+          "bearer": "split",
+          "confidence": 0.97
+        },
+        {
+          "id": "F3-007",
+          "pred": "F3",
+          "action": "refund_partial",
+          "bearer": "split",
+          "confidence": 0.97
+        },
+        {
+          "id": "F3-008",
+          "pred": "F3",
+          "action": "refund_partial",
+          "bearer": "split",
+          "confidence": 0.97
+        },
+        {
+          "id": "F3-009",
+          "pred": "F3",
+          "action": "refund_partial",
+          "bearer": "split",
+          "confidence": 0.97
+        },
+        {
+          "id": "F3-010",
+          "pred": "F3",
+          "action": "refund_partial",
+          "bearer": "split",
+          "confidence": 0.97
+        },
+        {
+          "id": "F3-011",
+          "pred": "F3",
+          "action": "refund_partial",
+          "bearer": "split",
+          "confidence": 0.97
+        },
+        {
+          "id": "F3-012",
+          "pred": "F3",
+          "action": "refund_partial",
+          "bearer": "split",
+          "confidence": 0.97
+        },
+        {
+          "id": "F3-013",
+          "pred": "F3",
+          "action": "refund_partial",
+          "bearer": "split",
+          "confidence": 0.97
+        },
+        {
+          "id": "F3-014",
+          "pred": "F3",
+          "action": "refund_partial",
+          "bearer": "split",
+          "confidence": 0.97
+        },
+        {
+          "id": "F3-015",
+          "pred": "F3",
+          "action": "refund_partial",
+          "bearer": "split",
+          "confidence": 0.97
+        },
+        {
+          "id": "F3-016",
+          "pred": "F3",
+          "action": "refund_partial",
+          "bearer": "split",
+          "confidence": 0.97
+        },
+        {
+          "id": "F3-017",
+          "pred": "F3",
+          "action": "refund_partial",
+          "bearer": "split",
+          "confidence": 0.97
+        },
+        {
+          "id": "F3-018",
+          "pred": "F3",
+          "action": "refund_partial",
+          "bearer": "split",
+          "confidence": 0.97
+        },
+        {
+          "id": "F3-019",
+          "pred": "F3",
+          "action": "refund_partial",
+          "bearer": "split",
+          "confidence": 0.97
+        },
+        {
+          "id": "F3-020",
+          "pred": "F3",
+          "action": "refund_partial",
+          "bearer": "split",
+          "confidence": 0.97
+        },
+        {
+          "id": "F3-021",
+          "pred": "F3",
+          "action": "refund_partial",
+          "bearer": "split",
+          "confidence": 0.97
+        },
+        {
+          "id": "F3-022",
+          "pred": "F3",
+          "action": "refund_partial",
+          "bearer": "split",
+          "confidence": 0.97
+        },
+        {
+          "id": "F3-023",
+          "pred": "F3",
+          "action": "refund_partial",
+          "bearer": "split",
+          "confidence": 0.97
+        },
+        {
+          "id": "F3-024",
+          "pred": "F3",
+          "action": "refund_partial",
+          "bearer": "split",
+          "confidence": 0.97
+        },
+        {
+          "id": "F4-000",
+          "pred": "F4",
+          "action": "refund_full",
+          "bearer": "merchant",
+          "confidence": 0.97
+        },
+        {
+          "id": "F4-001",
+          "pred": "F4",
+          "action": "refund_full",
+          "bearer": "merchant",
+          "confidence": 0.97
+        },
+        {
+          "id": "F4-002",
+          "pred": "F4",
+          "action": "refund_full",
+          "bearer": "merchant",
+          "confidence": 0.97
+        },
+        {
+          "id": "F4-003",
+          "pred": "F4",
+          "action": "refund_full",
+          "bearer": "merchant",
+          "confidence": 0.97
+        },
+        {
+          "id": "F4-004",
+          "pred": "F4",
+          "action": "refund_full",
+          "bearer": "merchant",
+          "confidence": 0.97
+        },
+        {
+          "id": "F4-005",
+          "pred": "F4",
+          "action": "refund_full",
+          "bearer": "merchant",
+          "confidence": 0.97
+        },
+        {
+          "id": "F4-006",
+          "pred": "F4",
+          "action": "refund_full",
+          "bearer": "merchant",
+          "confidence": 0.97
+        },
+        {
+          "id": "F4-007",
+          "pred": "F4",
+          "action": "refund_full",
+          "bearer": "merchant",
+          "confidence": 0.97
+        },
+        {
+          "id": "F4-008",
+          "pred": "F4",
+          "action": "refund_full",
+          "bearer": "merchant",
+          "confidence": 0.97
+        },
+        {
+          "id": "F4-009",
+          "pred": "F4",
+          "action": "refund_full",
+          "bearer": "merchant",
+          "confidence": 0.97
+        },
+        {
+          "id": "F4-010",
+          "pred": "F4",
+          "action": "refund_full",
+          "bearer": "merchant",
+          "confidence": 0.97
+        },
+        {
+          "id": "F4-011",
+          "pred": "F4",
+          "action": "refund_full",
+          "bearer": "merchant",
+          "confidence": 0.97
+        },
+        {
+          "id": "F4-012",
+          "pred": "F4",
+          "action": "refund_full",
+          "bearer": "merchant",
+          "confidence": 0.97
+        },
+        {
+          "id": "F4-013",
+          "pred": "F4",
+          "action": "refund_full",
+          "bearer": "merchant",
+          "confidence": 0.97
+        },
+        {
+          "id": "F4-014",
+          "pred": "F4",
+          "action": "refund_full",
+          "bearer": "merchant",
+          "confidence": 0.97
+        },
+        {
+          "id": "F4-015",
+          "pred": "F4",
+          "action": "refund_full",
+          "bearer": "merchant",
+          "confidence": 0.97
+        },
+        {
+          "id": "F4-016",
+          "pred": "F4",
+          "action": "refund_full",
+          "bearer": "merchant",
+          "confidence": 0.97
+        },
+        {
+          "id": "F4-017",
+          "pred": "F4",
+          "action": "refund_full",
+          "bearer": "merchant",
+          "confidence": 0.97
+        },
+        {
+          "id": "F4-018",
+          "pred": "F4",
+          "action": "refund_full",
+          "bearer": "merchant",
+          "confidence": 0.97
+        },
+        {
+          "id": "F4-019",
+          "pred": "F4",
+          "action": "refund_full",
+          "bearer": "merchant",
+          "confidence": 0.97
+        },
+        {
+          "id": "F4-020",
+          "pred": "F4",
+          "action": "refund_full",
+          "bearer": "merchant",
+          "confidence": 0.97
+        },
+        {
+          "id": "F4-021",
+          "pred": null,
+          "action": "review",
+          "bearer": null,
+          "confidence": 0.0
+        },
+        {
+          "id": "F4-022",
+          "pred": "F4",
+          "action": "refund_full",
+          "bearer": "merchant",
+          "confidence": 0.97
+        },
+        {
+          "id": "F4-023",
+          "pred": null,
+          "action": "review",
+          "bearer": null,
+          "confidence": 0.0
+        },
+        {
+          "id": "F4-024",
+          "pred": "F4",
+          "action": "refund_full",
+          "bearer": "merchant",
+          "confidence": 0.97
+        },
+        {
+          "id": "F5-000",
+          "pred": "F5",
+          "action": "refund_full",
+          "bearer": "merchant",
+          "confidence": 0.97
+        },
+        {
+          "id": "F5-001",
+          "pred": "F5",
+          "action": "refund_full",
+          "bearer": "merchant",
+          "confidence": 0.97
+        },
+        {
+          "id": "F5-002",
+          "pred": "F5",
+          "action": "refund_full",
+          "bearer": "merchant",
+          "confidence": 0.97
+        },
+        {
+          "id": "F5-003",
+          "pred": "F5",
+          "action": "refund_full",
+          "bearer": "merchant",
+          "confidence": 0.97
+        },
+        {
+          "id": "F5-004",
+          "pred": "F5",
+          "action": "refund_full",
+          "bearer": "merchant",
+          "confidence": 0.97
+        },
+        {
+          "id": "F5-005",
+          "pred": "F5",
+          "action": "refund_full",
+          "bearer": "merchant",
+          "confidence": 0.97
+        },
+        {
+          "id": "F5-006",
+          "pred": "F5",
+          "action": "refund_full",
+          "bearer": "merchant",
+          "confidence": 0.97
+        },
+        {
+          "id": "F5-007",
+          "pred": "F5",
+          "action": "refund_full",
+          "bearer": "merchant",
+          "confidence": 0.97
+        },
+        {
+          "id": "F5-008",
+          "pred": "F5",
+          "action": "refund_full",
+          "bearer": "merchant",
+          "confidence": 0.97
+        },
+        {
+          "id": "F5-009",
+          "pred": "F5",
+          "action": "refund_full",
+          "bearer": "merchant",
+          "confidence": 0.97
+        },
+        {
+          "id": "F5-010",
+          "pred": "F5",
+          "action": "refund_full",
+          "bearer": "merchant",
+          "confidence": 0.97
+        },
+        {
+          "id": "F5-011",
+          "pred": "F5",
+          "action": "refund_full",
+          "bearer": "merchant",
+          "confidence": 0.97
+        },
+        {
+          "id": "F5-012",
+          "pred": "F5",
+          "action": "refund_full",
+          "bearer": "merchant",
+          "confidence": 0.97
+        },
+        {
+          "id": "F5-013",
+          "pred": "F5",
+          "action": "refund_full",
+          "bearer": "merchant",
+          "confidence": 0.97
+        },
+        {
+          "id": "F5-014",
+          "pred": "F5",
+          "action": "refund_full",
+          "bearer": "merchant",
+          "confidence": 0.97
+        },
+        {
+          "id": "F5-015",
+          "pred": "F5",
+          "action": "refund_full",
+          "bearer": "merchant",
+          "confidence": 0.97
+        },
+        {
+          "id": "F5-016",
+          "pred": "F5",
+          "action": "refund_full",
+          "bearer": "merchant",
+          "confidence": 0.97
+        },
+        {
+          "id": "F5-017",
+          "pred": "F5",
+          "action": "refund_full",
+          "bearer": "merchant",
+          "confidence": 0.97
+        },
+        {
+          "id": "F5-018",
+          "pred": "F5",
+          "action": "refund_full",
+          "bearer": "merchant",
+          "confidence": 0.97
+        },
+        {
+          "id": "F5-019",
+          "pred": "F5",
+          "action": "refund_full",
+          "bearer": "merchant",
+          "confidence": 0.97
+        },
+        {
+          "id": "F5-020",
+          "pred": "F5",
+          "action": "review",
+          "bearer": null,
+          "confidence": 0.75
+        },
+        {
+          "id": "F5-021",
+          "pred": "F5",
+          "action": "review",
+          "bearer": null,
+          "confidence": 0.75
+        },
+        {
+          "id": "F5-022",
+          "pred": "F5",
+          "action": "review",
+          "bearer": null,
+          "confidence": 0.75
+        },
+        {
+          "id": "F5-023",
+          "pred": "F5",
+          "action": "review",
+          "bearer": null,
+          "confidence": 0.75
+        },
+        {
+          "id": "F5-024",
+          "pred": "F5",
+          "action": "review",
+          "bearer": null,
+          "confidence": 0.75
+        },
+        {
+          "id": "F6-000",
+          "pred": "F6",
+          "action": "contest",
+          "bearer": "buyer",
+          "confidence": 0.97
+        },
+        {
+          "id": "F6-001",
+          "pred": "F6",
+          "action": "contest",
+          "bearer": "buyer",
+          "confidence": 0.97
+        },
+        {
+          "id": "F6-002",
+          "pred": "F6",
+          "action": "contest",
+          "bearer": "buyer",
+          "confidence": 0.97
+        },
+        {
+          "id": "F6-003",
+          "pred": "F6",
+          "action": "contest",
+          "bearer": "buyer",
+          "confidence": 0.97
+        },
+        {
+          "id": "F6-004",
+          "pred": "F6",
+          "action": "contest",
+          "bearer": "buyer",
+          "confidence": 0.97
+        },
+        {
+          "id": "F6-005",
+          "pred": "F6",
+          "action": "contest",
+          "bearer": "buyer",
+          "confidence": 0.97
+        },
+        {
+          "id": "F6-006",
+          "pred": "F6",
+          "action": "contest",
+          "bearer": "buyer",
+          "confidence": 0.97
+        },
+        {
+          "id": "F6-007",
+          "pred": "F6",
+          "action": "contest",
+          "bearer": "buyer",
+          "confidence": 0.97
+        },
+        {
+          "id": "F6-008",
+          "pred": "F6",
+          "action": "contest",
+          "bearer": "buyer",
+          "confidence": 0.97
+        },
+        {
+          "id": "F6-009",
+          "pred": "F6",
+          "action": "contest",
+          "bearer": "buyer",
+          "confidence": 0.97
+        },
+        {
+          "id": "F6-010",
+          "pred": "F6",
+          "action": "contest",
+          "bearer": "buyer",
+          "confidence": 0.97
+        },
+        {
+          "id": "F6-011",
+          "pred": "F6",
+          "action": "contest",
+          "bearer": "buyer",
+          "confidence": 0.97
+        },
+        {
+          "id": "F6-012",
+          "pred": "F6",
+          "action": "contest",
+          "bearer": "buyer",
+          "confidence": 0.97
+        },
+        {
+          "id": "F6-013",
+          "pred": "F6",
+          "action": "contest",
+          "bearer": "buyer",
+          "confidence": 0.97
+        },
+        {
+          "id": "F6-014",
+          "pred": "F6",
+          "action": "contest",
+          "bearer": "buyer",
+          "confidence": 0.97
+        },
+        {
+          "id": "F6-015",
+          "pred": "F6",
+          "action": "contest",
+          "bearer": "buyer",
+          "confidence": 0.97
+        },
+        {
+          "id": "F6-016",
+          "pred": "F6",
+          "action": "contest",
+          "bearer": "buyer",
+          "confidence": 0.97
+        },
+        {
+          "id": "F6-017",
+          "pred": "F6",
+          "action": "contest",
+          "bearer": "buyer",
+          "confidence": 0.97
+        },
+        {
+          "id": "F6-018",
+          "pred": "F6",
+          "action": "contest",
+          "bearer": "buyer",
+          "confidence": 0.97
+        },
+        {
+          "id": "F6-019",
+          "pred": "F6",
+          "action": "contest",
+          "bearer": "buyer",
+          "confidence": 0.97
+        },
+        {
+          "id": "F6-020",
+          "pred": "F6",
+          "action": "contest",
+          "bearer": "buyer",
+          "confidence": 0.97
+        },
+        {
+          "id": "F6-021",
+          "pred": "F6",
+          "action": "contest",
+          "bearer": "buyer",
+          "confidence": 0.97
+        },
+        {
+          "id": "F6-022",
+          "pred": "F6",
+          "action": "contest",
+          "bearer": "buyer",
+          "confidence": 0.97
+        },
+        {
+          "id": "F6-023",
+          "pred": "F6",
+          "action": "contest",
+          "bearer": "buyer",
+          "confidence": 0.97
+        },
+        {
+          "id": "F6-024",
+          "pred": "F6",
+          "action": "contest",
+          "bearer": "buyer",
+          "confidence": 0.97
+        }
+      ]
+    }
+  ]
+}

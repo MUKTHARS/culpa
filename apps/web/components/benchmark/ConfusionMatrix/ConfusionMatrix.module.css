@@ -1,0 +1,22 @@
+.matrix {
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.matrix th,
+.matrix td {
+  border: 1px solid var(--line);
+  padding: 6px 10px;
+  text-align: center;
+  min-width: 44px;
+}
+
+.matrix tbody th {
+  text-align: left;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.matrix td {
+  font-weight: 700;
+}

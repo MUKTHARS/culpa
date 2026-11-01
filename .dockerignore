@@ -1,0 +1,20 @@
+# Keep secrets, local environments and build output out of every image.
+**/.env
+**/.env.local
+**/.env.*.local
+**/.venv
+**/__pycache__
+**/*.pyc
+**/.pytest_cache
+**/*.db
+**/*.db-shm
+**/*.db-wal
+apps/api/culpa.db.old-schema
+**/node_modules
+**/.next
+**/*.tsbuildinfo
+.git
+.github
+.agents
+.vscode
+.idea

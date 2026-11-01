@@ -1,0 +1,127 @@
+# Full local stack: Postgres + Redis + API + worker + web.
+#   docker compose up -d --build        -> web http://localhost:3000, API http://localhost:8000
+#   docker compose up -d redis postgres -> only the data services, run API/web from source
+#   docker compose logs -f api          -> follow one service (containers are named culpa-<service>)
+# Secrets come from apps/api/.env (PayPal, Anthropic). Compose overrides the storage URLs.
+
+name: culpa
+
+x-api-env: &api-env
+  DATABASE_URL: postgresql://culpa:culpa@postgres:5432/culpa
+  REDIS_URL: redis://redis:6379/0
+  QUEUE_MODE: redis
+  PUBLIC_API_URL: http://localhost:8000
+  PUBLIC_WEB_URL: http://localhost:3000
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: culpa-postgres
+    hostname: culpa-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: culpa
+      POSTGRES_PASSWORD: culpa
+      POSTGRES_DB: culpa
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    networks: [culpa]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U culpa -d culpa"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    container_name: culpa-redis
+    hostname: culpa-redis
+    restart: unless-stopped
+    command: ["redis-server", "/usr/local/etc/redis/redis.conf"]
+    ports:
+      - "6379:6379"
+    volumes:
+      - ./infra/redis/redis.conf:/usr/local/etc/redis/redis.conf:ro
+      - redis-data:/data
+    networks: [culpa]
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  api:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+    image: culpa-api:local
+    container_name: culpa-api
+    hostname: culpa-api
+    restart: unless-stopped
+    env_file:
+      - apps/api/.env
+    environment:
+      <<: *api-env
+      RUN_WORKERS_IN_PROCESS: "false"
+      WEB_ORIGIN: http://localhost:3000
+    ports:
+      - "8000:8000"
+    networks: [culpa]
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  worker:
+    # Same image as the API, built once by the api service.
+    image: culpa-api:local
+    pull_policy: never
+    container_name: culpa-worker
+    hostname: culpa-worker
+    restart: unless-stopped
+    command: ["python", "-m", "workers.runner"]
+    env_file:
+      - apps/api/.env
+    environment:
+      <<: *api-env
+    networks: [culpa]
+    healthcheck:
+      disable: true
+    depends_on:
+      api:
+        condition: service_healthy
+
+  web:
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile
+      args:
+        NEXT_PUBLIC_API_URL: http://localhost:8000
+    image: culpa-web:local
+    container_name: culpa-web
+    hostname: culpa-web
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    networks: [culpa]
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3000/').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+    depends_on:
+      api:
+        condition: service_healthy
+
+networks:
+  culpa:
+    name: culpa-net
+
+volumes:
+  postgres-data:
+    name: culpa-postgres-data
+  redis-data:
+    name: culpa-redis-data

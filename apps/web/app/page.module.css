@@ -1,0 +1,107 @@
+.hero {
+  padding: var(--space-6) 0;
+  max-width: 760px;
+}
+
+.kicker {
+  color: var(--accent);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 12px;
+}
+
+.title {
+  font-size: clamp(28px, 5vw, 40px);
+  margin-top: var(--space-2);
+}
+
+.lead {
+  margin-top: var(--space-3);
+  font-size: 16px;
+  color: var(--ink-2);
+}
+
+.ctas {
+  display: flex;
+  gap: var(--space-3);
+  margin-top: var(--space-5);
+  flex-wrap: wrap;
+}
+
+.primary,
+.secondary {
+  padding: 10px 18px;
+  border-radius: var(--radius-sm);
+  font-weight: 700;
+}
+
+.primary {
+  background: var(--accent);
+  color: #fff;
+}
+
+.secondary {
+  border: 1px solid var(--line-strong);
+  color: var(--ink);
+  background: var(--surface);
+}
+
+.primary:hover,
+.secondary:hover {
+  text-decoration: none;
+}
+
+.steps {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: var(--space-3);
+}
+
+.step {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: var(--space-4);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.num {
+  display: inline-grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-weight: 700;
+  font-size: 12px;
+}
+
+.roles {
+  margin-top: var(--space-5);
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: var(--space-3);
+}
+
+.role {
+  background: var(--ink);
+  color: #fff;
+  border-radius: var(--radius);
+  padding: var(--space-5);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.role:hover {
+  text-decoration: none;
+  background: var(--pp-navy-deep);
+}
+
+.role :global(.muted) {
+  color: #cfe1f5;
+}
