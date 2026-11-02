@@ -102,10 +102,7 @@ One command runs the 213 backend tests, including all 126 dispute scenarios, the
 The benchmark and the scenarios can also be run on their own with python bench/run.py and python bench/scenarios.py.
 
 
-Limitations
-
-The benchmark data is synthetic. The demo store is small and seeded at startup. A partial refund on a real PayPal dispute is sent as a refund offer that the buyer still has to accept. Webhook signatures are verified only when a webhook ID is configured. These verdicts are advisory decisions enforced by code, not legal rulings.
-
+Demo credentails : login {analyst/ QsHjrvQpsB5qxNXY}, paypal credentials: {email:sb-3khub53626478@personal.example.com/ password: ^x.3L25$}
 
 License
 
