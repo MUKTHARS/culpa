@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import type { ShopInput } from "@/api/agent";
-import { CATEGORIES } from "@/components/agent/MandateForm/MandateForm";
+import { attributeLabel, categoryLabel } from "@/lib/facets";
 import { money } from "@/lib/format";
 import { cx } from "@/lib/utils";
 import styles from "./MandatePanel.module.css";
@@ -22,7 +22,7 @@ interface Props {
 /** The buyer's mandate as an authorization slip: live while drafting, frozen once signed, with the outcome below. */
 export function MandatePanel({ mandate, status, children }: Props) {
   const attributes = Object.entries(mandate?.required_attributes ?? {});
-  const category = CATEGORIES.find((c) => c.value === (mandate?.category ?? ""))?.label ?? mandate?.category;
+  const category = categoryLabel(mandate?.category);
 
   return (
     <aside className={styles.panel} aria-label="Mandate">
@@ -47,7 +47,7 @@ export function MandatePanel({ mandate, status, children }: Props) {
             <ul className={styles.chips}>
               {attributes.map(([k, v]) => (
                 <li key={k} className={styles.chip}>
-                  {k} <strong>{v}</strong>
+                  {attributeLabel(k)} <strong>{v}</strong>
                 </li>
               ))}
             </ul>

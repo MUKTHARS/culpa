@@ -91,5 +91,5 @@ def retry(fn: Callable[[], T], *, attempts: int, retry_on: tuple[type[BaseExcept
 
 breakers: dict[str, CircuitBreaker] = {
     "paypal": CircuitBreaker("paypal"),
-    "claude": CircuitBreaker("claude", threshold=5, window_s=60, cooldown_s=60),
+    "llm": CircuitBreaker("llm", threshold=5, window_s=60, cooldown_s=60),
 }

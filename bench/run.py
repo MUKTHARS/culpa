@@ -4,7 +4,7 @@ Systems:
   claim_keywords    baseline: classify from the buyer's claim text alone (what a naive dispute bot does)
   culpa_no_replay   Culpa without the agent-replay check
   culpa_full        all four checks + the settlement policy (rule-based, no LLM)
-  culpa_full_llm    culpa_full with the Claude judge/clarifier (only with --llm; costs API credits)
+  culpa_full_llm    culpa_full with the Gemini judge/clarifier (only with --llm; costs API credits)
 
 Usage: python bench/run.py [--llm]
 """
@@ -154,7 +154,7 @@ def write_markdown(results: dict, path: Path) -> None:
 
 def main() -> None:
     ap = argparse.ArgumentParser()
-    ap.add_argument("--llm", action="store_true", help="also run culpa_full_llm (uses ANTHROPIC_API_KEY, costs money)")
+    ap.add_argument("--llm", action="store_true", help="also run culpa_full_llm (uses GEMINI_API_KEY and its quota)")
     args = ap.parse_args()
 
     if not DATA.exists():
@@ -169,7 +169,7 @@ def main() -> None:
 
         llm = get_llm()
         if llm is None:
-            print("ANTHROPIC_API_KEY not set; skipping culpa_full_llm")
+            print("GEMINI_API_KEY not set; skipping culpa_full_llm")
         else:
             systems.append(run_system("culpa_full_llm", rows, llm=llm))
 

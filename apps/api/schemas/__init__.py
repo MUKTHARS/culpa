@@ -35,3 +35,6 @@ class LoginRequest(BaseModel):
 
 class ApproveRequest(BaseModel):
     action: str | None = Field(default=None, pattern=r"^(refund_full|refund_partial|contest)$")
+    # Only for refund_partial: an analyst-chosen amount instead of the policy's.
+    amount: str | None = Field(default=None, pattern=r"^\d{1,7}(\.\d{1,2})?$")
+    note: str | None = Field(default=None, max_length=1000)

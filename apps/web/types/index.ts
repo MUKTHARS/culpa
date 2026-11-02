@@ -15,6 +15,15 @@ export interface Product {
   updated_at: string;
 }
 
+/** A shopping filter group: a category and the attribute values its products actually have. */
+export interface StoreFacet {
+  value: string;
+  label: string;
+  parent: string | null;
+  attributes: Record<string, string[]>;
+  keywords: string[];
+}
+
 export interface ProductVersion {
   version: number;
   title: string;
@@ -30,6 +39,8 @@ export interface Evidence {
   fault_class: string | null;
   party: Party | null;
   weight: number;
+  /** A cause of the problem (decides fault). False: a supporting signal that only affects confidence. */
+  primary?: boolean;
 }
 
 export interface Verdict {
@@ -44,6 +55,16 @@ export interface Verdict {
   flags: string[];
   check_order: string[][];
   degraded: boolean;
+  claim_category?: string;
+  /** The plain-language reason: a rule code, a title, a summary and the real-world rule it follows. */
+  reason?: VerdictReason;
+}
+
+export interface VerdictReason {
+  code: string;
+  title: string;
+  summary: string;
+  reference: string;
 }
 
 export interface EvidenceFingerprint {
@@ -98,6 +119,8 @@ export interface CaseRow {
   recommended_action: Action | null;
   refund_amount: string | null;
   flags: string[];
+  /** Short plain-language reason for the verdict ("The item was not delivered"). */
+  reason_title?: string | null;
   created_at: string;
   updated_at: string;
 }

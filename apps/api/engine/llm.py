@@ -1,19 +1,22 @@
-"""Claude client for the engine: product choice, instruction clarification and the claim-consistency judge.
+"""Gemini client for the engine: product choice, instruction clarification and the claim-consistency judge.
 
-- Every call returns schema-validated JSON (structured outputs); the model never gets tools or money access.
-- Results are memoized by a hash of (model, prompt version, inputs).
+- Every call returns schema-validated JSON (JSON-schema structured output); the model never gets tools or money access.
+- Results are memoized by a hash of (model, prompt version, inputs), and sampled at a fixed temperature.
 - Buyer-written text is passed as quoted data, never as instructions.
 - Failures raise LLMUnavailable; the engine falls back to its rule-based checks.
-- Account problems (no credit, bad key) are remembered for a few minutes so later calls fail instantly.
+- Account problems (rejected key, unknown model) are remembered for a few minutes so later calls fail instantly.
 """
 
 from __future__ import annotations
 
 import json
 import time
-from typing import Any, Protocol
+from typing import Protocol
 
-import anthropic
+import httpx
+from google import genai
+from google.genai import errors as genai_errors
+from google.genai import types
 
 from core.resilience import CircuitBreaker, CircuitOpen
 from core.security import sha256_hex
@@ -75,20 +78,25 @@ _SYSTEM = (
 )
 
 
-class ClaudeLLM:
+class GeminiLLM:
     def __init__(self, api_key: str, judge_model: str, fast_model: str, timeout_s: float = 60.0,
-                 memo: MemoStore | None = None, breaker: CircuitBreaker | None = None, client=None):
-        self.client = client or anthropic.Anthropic(api_key=api_key, timeout=timeout_s, max_retries=2)
+                 memo: MemoStore | None = None, breaker: CircuitBreaker | None = None, client=None,
+                 temperature: float | None = 0.0):
+        # Two attempts with backoff ride out Gemini's short "high demand" (503) and per-minute limit (429) spikes.
+        self.client = client or genai.Client(api_key=api_key, http_options=types.HttpOptions(
+            timeout=int(timeout_s * 1000), retry_options=types.HttpRetryOptions(attempts=2)))
         self.judge_model = judge_model
         self.fast_model = fast_model
+        self.temperature = temperature
         self.memo = memo or DictMemo()
-        self.breaker = breaker or CircuitBreaker("claude")
+        self.breaker = breaker or CircuitBreaker("llm")
         self._account_error: str | None = None
         self._account_error_at = 0.0
+        self._no_thinking_level: set[str] = set()  # models that reject a thinking level
 
     @property
     def unavailable_reason(self) -> str | None:
-        """Why Claude cannot be used right now (no credit, invalid key), or None."""
+        """Why Gemini cannot be used right now (rejected key, unknown model), or None."""
         if self._account_error and time.monotonic() - self._account_error_at < ACCOUNT_ERROR_HOLD_S:
             return self._account_error
         return None
@@ -97,6 +105,27 @@ class ClaudeLLM:
         self._account_error, self._account_error_at = reason, time.monotonic()
         return LLMUnavailable(reason)
 
+    def _generate(self, model: str, prompt: str, schema: dict, max_tokens: int):
+        def config(with_thinking: bool) -> types.GenerateContentConfig:
+            return types.GenerateContentConfig(
+                system_instruction=_SYSTEM,
+                temperature=self.temperature,
+                max_output_tokens=max_tokens,
+                response_mime_type="application/json",
+                response_json_schema=schema,
+                # Short, factual tasks: little thinking keeps answers fast and inside the free quota.
+                thinking_config=types.ThinkingConfig(thinking_level=types.ThinkingLevel.LOW) if with_thinking else None,
+            )
+
+        with_thinking = model not in self._no_thinking_level
+        try:
+            return self.client.models.generate_content(model=model, contents=prompt, config=config(with_thinking))
+        except genai_errors.ClientError as exc:
+            if with_thinking and exc.code == 400 and "thinking" in str(exc.message).lower():
+                self._no_thinking_level.add(model)
+                return self.client.models.generate_content(model=model, contents=prompt, config=config(False))
+            raise
+
     def _call(self, model: str, prompt: str, schema: dict, max_tokens: int) -> dict:
         if (reason := self.unavailable_reason) is not None:
             raise LLMUnavailable(reason)
@@ -104,48 +133,32 @@ class ClaudeLLM:
             self.breaker.before_call()
         except CircuitOpen as exc:
             raise LLMUnavailable(str(exc)) from exc
-        kwargs: dict[str, Any] = {
-            "model": model,
-            "max_tokens": max_tokens,
-            "system": _SYSTEM,
-            "messages": [{"role": "user", "content": prompt}],
-            "output_config": {"effort": "low", "format": {"type": "json_schema", "schema": schema}},
-        }
         try:
-            if model.startswith(("claude-opus-5", "claude-sonnet-5-5", "claude-fable-5")):
-                # Server-side fallback: if the primary model declines, the API retries on a fallback model.
-                response = self.client.beta.messages.create(
-                    betas=["server-side-fallback-2026-07-01"], fallbacks="default", **kwargs)
-            else:
-                response = self.client.messages.create(**kwargs)
-        except anthropic.BadRequestError as exc:
+            response = self._generate(model, prompt, schema, max_tokens)
+        except genai_errors.APIError as exc:
             self.breaker.record_failure()
-            if "credit balance" in str(exc.message).lower():
-                raise self._account_failure("Anthropic account has no credit left") from exc
-            raise LLMUnavailable(f"bad request: {exc.message}") from exc
-        except anthropic.AuthenticationError as exc:
-            self.breaker.record_failure()
-            raise self._account_failure("invalid ANTHROPIC_API_KEY") from exc
-        except anthropic.PermissionDeniedError as exc:
-            self.breaker.record_failure()
-            raise self._account_failure("API key has no access to this model") from exc
-        except anthropic.RateLimitError as exc:
-            self.breaker.record_failure()
-            raise LLMUnavailable("rate limited") from exc
-        except anthropic.APIStatusError as exc:
-            self.breaker.record_failure()
-            raise LLMUnavailable(f"api error {exc.status_code}") from exc
-        except anthropic.APIConnectionError as exc:
+            message = str(exc.message or "")
+            if exc.code in (401, 403) or "api key" in message.lower() or "API_KEY" in message:
+                raise self._account_failure("the Gemini API key was rejected (check GEMINI_API_KEY)") from exc
+            if exc.code == 404:
+                raise self._account_failure(f"Gemini model {model!r} is not available to this key") from exc
+            if exc.code == 429:
+                raise LLMUnavailable("Gemini rate limit or free quota reached; try again shortly") from exc
+            if exc.code and exc.code >= 500:
+                raise LLMUnavailable(f"Gemini is unavailable right now ({exc.code})") from exc
+            raise LLMUnavailable(f"bad request: {message[:200]}") from exc
+        except (httpx.HTTPError, OSError) as exc:
             self.breaker.record_failure()
             raise LLMUnavailable("connection error") from exc
 
-        if response.stop_reason == "refusal":
+        feedback = getattr(response, "prompt_feedback", None)
+        if not response.candidates or (feedback is not None and getattr(feedback, "block_reason", None)):
             self.breaker.record_success()
             raise LLMUnavailable("model declined the request")
-        text = next((b.text for b in response.content if getattr(b, "type", None) == "text"), None)
+        text = response.text
         if not text:
             self.breaker.record_failure()
-            raise LLMUnavailable(f"no text in response (stop_reason={response.stop_reason})")
+            raise LLMUnavailable(f"no text in response (finish_reason={response.candidates[0].finish_reason})")
         try:
             data = json.loads(text)
         except json.JSONDecodeError as exc:
@@ -173,7 +186,7 @@ class ClaudeLLM:
             f"<instruction>{instruction}</instruction>\n<catalog>{json.dumps(catalog)}</catalog>"
         )
         data = self._memoized("choose", self.fast_model, {"instruction": instruction, "catalog": catalog},
-                              prompt, _CHOOSE_SCHEMA, 1024, use_cache)
+                              prompt, _CHOOSE_SCHEMA, 2048, use_cache)
         ids = {c.id for c in candidates}
         if data.get("product_id") not in ids:
             raise LLMUnavailable("model chose a product outside the catalog")
@@ -188,7 +201,7 @@ class ClaudeLLM:
         )
         data = self._memoized("clarify", self.fast_model,
                               {"instruction": instruction, "claim": claim_text, "keys": attribute_keys},
-                              prompt, _CLARIFY_SCHEMA, 512)
+                              prompt, _CLARIFY_SCHEMA, 1024)
         return str(data.get("clarified_instruction") or instruction)
 
     def judge_claim(self, claim_text: str, facts: dict) -> dict:
@@ -198,6 +211,6 @@ class ClaudeLLM:
             f"<buyer_claim>{claim_text}</buyer_claim>\n<evidence>{json.dumps(facts, sort_keys=True)}</evidence>"
         )
         data = self._memoized("judge", self.judge_model, {"claim": claim_text, "facts": facts},
-                              prompt, _JUDGE_SCHEMA, 2048)
+                              prompt, _JUDGE_SCHEMA, 4096)
         data["confidence"] = max(0.0, min(1.0, float(data.get("confidence", 0.0))))
         return data

@@ -4,19 +4,38 @@ import { useState } from "react";
 import { casesApi } from "@/api/cases";
 import { Badge } from "@/components/ui/Badge/Badge";
 import { Button } from "@/components/ui/Button/Button";
-import { Select } from "@/components/ui/Field/Field";
 import { useAsyncAction } from "@/hooks/useAsyncAction";
-import { ACTION_LABEL, PARTY_LABEL, humanize, money } from "@/lib/format";
+import { ACTION_LABEL, PARTY_LABEL, humanize, money, when } from "@/lib/format";
+import { cx } from "@/lib/utils";
 import type { Action, CaseDetail, Party } from "@/types";
 import styles from "./ApprovePanel.module.css";
 
-type Executable = Exclude<Action, "review">;
+type Option = Exclude<Action, "review">;
+
+const AMOUNT = /^\d{1,7}(\.\d{1,2})?$/;
+
+/** What each option does on PayPal for this case, so the analyst knows exactly what will happen. */
+function paypalStep(option: Option, detail: CaseDetail): string {
+  const dispute = Boolean(detail.paypal_dispute_id);
+  if (option === "refund_full") return dispute ? "PayPal: accept the buyer's claim (full refund)" : "PayPal: refund the payment in full";
+  if (option === "refund_partial") return dispute ? "PayPal: send the buyer a refund offer" : "PayPal: refund part of the payment";
+  return dispute ? "PayPal: submit Culpa's evidence to contest the dispute" : "No PayPal dispute to contest: the claim is denied in Culpa";
+}
 
 export function ApprovePanel({ detail, onChange }: { detail: CaseDetail; onChange: () => void }) {
   const recommended = detail.recommended_action;
-  const [override, setOverride] = useState<Executable | "">("");
+  const executable = recommended && recommended !== "review" ? (recommended as Option) : null;
+  const [choice, setChoice] = useState<Option | null>(executable);
+  const [partial, setPartial] = useState(detail.refund_amount ?? "");
+  const [note, setNote] = useState("");
+
   const approve = useAsyncAction(async () => {
-    await casesApi.approve(detail.id, override || undefined);
+    if (!choice) return;
+    await casesApi.approve(detail.id, {
+      action: choice,
+      amount: choice === "refund_partial" ? partial : undefined,
+      note: note.trim() || undefined,
+    });
     onChange();
   });
   const reanalyze = useAsyncAction(async () => {
@@ -26,63 +45,109 @@ export function ApprovePanel({ detail, onChange }: { detail: CaseDetail; onChang
 
   const s = detail.settlement;
   const canApprove = !s && (detail.status === "awaiting_approval" || detail.status === "needs_review");
-  const needsChoice = recommended === "review" || recommended === null;
+  const total = Number(detail.amount);
+  const partialOk = AMOUNT.test(partial) && Number(partial) > 0 && Number(partial) < total;
+  const ready = choice !== null && (choice !== "refund_partial" || partialOk);
+  const bearers = Object.entries(detail.liability ?? {});
+  const flags = detail.flags ?? [];
+
+  const options: { value: Option; title: string; detail: string }[] = [
+    { value: "refund_full", title: "Full refund", detail: `Return ${money(detail.amount, detail.currency)} to the buyer.` },
+    { value: "refund_partial", title: "Partial refund", detail: "Refund part of the payment; the buyer keeps the item." },
+    { value: "contest", title: "Contest the claim", detail: "Keep the payment and defend it with the fingerprinted evidence." },
+  ];
+
+  const summary = !choice ? null
+    : choice === "refund_full" ? `Refund ${money(detail.amount, detail.currency)} to the buyer.`
+    : choice === "refund_partial" ? (partialOk ? `Refund ${money(partial, detail.currency)} of ${money(detail.amount, detail.currency)} to the buyer.` : "Enter a valid partial amount.")
+    : "Contest the dispute; no money moves.";
 
   return (
     <div className={styles.wrap}>
       <div className={styles.recommendation}>
-        <p className={styles.label}>Policy recommendation</p>
-        <p className={styles.action}>{recommended ? ACTION_LABEL[recommended] : "—"}</p>
-        {detail.refund_amount && <p>Refund {money(detail.refund_amount, detail.currency)}</p>}
-        {detail.liability && Object.keys(detail.liability).length > 0 && (
+        <p className={styles.label}>Culpa recommends</p>
+        <p className={styles.action}>{recommended ? ACTION_LABEL[recommended] : "Waiting for analysis"}</p>
+        {detail.refund_amount && recommended !== "contest" && <p>{money(detail.refund_amount, detail.currency)} to the buyer</p>}
+        {bearers.length > 0 && (
           <ul className={styles.liability}>
-            {Object.entries(detail.liability).map(([party, amount]) => (
-              <li key={party}>
-                {PARTY_LABEL[party as Party]} bears {money(amount, detail.currency)}
-              </li>
+            {bearers.map(([party, amount]) => (
+              <li key={party}>{PARTY_LABEL[party as Party]} bears {money(amount, detail.currency)}</li>
             ))}
           </ul>
+        )}
+        {recommended === "review" && (
+          <p className={styles.hint}>
+            {flags.includes("needs_evidence") ? "Ask the buyer for photos or a return before choosing."
+              : flags.includes("processing_dispute") ? "Check the PayPal transaction history before choosing."
+              : "The evidence does not prove a single cause. Choose an outcome below."}
+          </p>
         )}
       </div>
 
       {s ? (
-        <div className={styles.settlement}>
+        <div className={styles.result}>
           <div className="row">
-            <Badge tone={s.status === "succeeded" ? "good" : s.status === "failed_final" ? "bad" : "info"}>
-              {humanize(s.status)}
-            </Badge>
-            <span>{ACTION_LABEL[s.action]}</span>
+            <Badge tone={s.status === "succeeded" ? "good" : s.status === "failed_final" ? "bad" : "info"}>{humanize(s.status)}</Badge>
+            <strong>{ACTION_LABEL[s.action]}</strong>
             {s.amount && <span>{money(s.amount, detail.currency)}</span>}
             {s.simulated && <Badge tone="warn">Simulated: no money moved</Badge>}
           </div>
           {s.error && <p className="error">{s.error}</p>}
-          <p className="muted mono">PayPal-Request-Id {s.idempotency_key}</p>
-          <p className="muted">
-            Approved by {s.approved_by} · {s.attempts} attempt{s.attempts === 1 ? "" : "s"}
-          </p>
+          <dl className={styles.facts}>
+            <dt>Approved by</dt>
+            <dd>{s.approved_by}</dd>
+            <dt>Attempts</dt>
+            <dd>{s.attempts}</dd>
+            <dt>Last update</dt>
+            <dd>{when(s.updated_at)}</dd>
+            <dt>PayPal request ID</dt>
+            <dd className="mono">{s.idempotency_key}</dd>
+          </dl>
+          <p className={styles.hint}>The request ID is reused on every retry, so PayPal never applies this twice.</p>
         </div>
       ) : canApprove ? (
         <div className={styles.controls}>
-          <Select value={override} onChange={(e) => setOverride(e.target.value as Executable | "")}
-                  aria-label="Action to execute">
-            <option value="">{needsChoice ? "Choose an action…" : `Use recommendation (${ACTION_LABEL[recommended!]})`}</option>
-            <option value="refund_full">Override: full refund</option>
-            {detail.refund_amount && <option value="refund_partial">Override: partial refund</option>}
-            <option value="contest">Override: contest claim</option>
-          </Select>
+          <fieldset className={styles.options}>
+            <legend className={styles.question}>Settle this dispute</legend>
+            {options.map((o) => (
+              <label key={o.value} className={cx(styles.option, choice === o.value && styles.optionActive)}>
+                <input type="radio" name={`settle-${detail.id}`} className={styles.radio} checked={choice === o.value}
+                       onChange={() => setChoice(o.value)} />
+                <span className={styles.optionHead}>
+                  <span className={styles.optionTitle}>{o.title}</span>
+                  {o.value === executable && <Badge tone="accent">Recommended</Badge>}
+                </span>
+                <span className={styles.optionDetail}>{o.detail}</span>
+                <span className={styles.optionStep}>{paypalStep(o.value, detail)}</span>
+                {o.value === "refund_partial" && choice === "refund_partial" && (
+                  <span className={styles.amount}>
+                    <span aria-hidden>$</span>
+                    <input value={partial} onChange={(e) => setPartial(e.target.value)} inputMode="decimal"
+                           placeholder="0.00" aria-label="Partial refund amount" className={styles.amountInput} />
+                    <span className={styles.amountMax}>of {money(detail.amount, detail.currency)}</span>
+                  </span>
+                )}
+              </label>
+            ))}
+          </fieldset>
+
+          <label className={styles.noteField}>
+            <span className={styles.noteLabel}>Note for the audit log (optional)</span>
+            <textarea value={note} onChange={(e) => setNote(e.target.value)} rows={2} maxLength={1000}
+                      className={styles.note} placeholder="Why you chose this outcome" />
+          </label>
+
+          {summary && <p className={styles.confirm}>{summary}</p>}
           <div className="row">
-            <Button onClick={() => approve.run()} loading={approve.pending} disabled={needsChoice && !override}>
-              Approve and execute on PayPal
+            <Button onClick={() => approve.run()} loading={approve.pending} disabled={!ready}>
+              {choice === "contest" ? "Confirm and contest" : "Confirm and refund"}
             </Button>
-            <Button variant="secondary" onClick={() => reanalyze.run()} loading={reanalyze.pending}>
+            <Button variant="ghost" onClick={() => reanalyze.run()} loading={reanalyze.pending}>
               Re-run analysis
             </Button>
           </div>
           {approve.error && <p className="error">{approve.error}</p>}
           {reanalyze.error && <p className="error">{reanalyze.error}</p>}
-          <p className="muted">
-            Money only moves through the settlement worker, with a deterministic idempotency key. Approving twice is safe.
-          </p>
         </div>
       ) : (
         <p className="muted">Waiting for analysis…</p>

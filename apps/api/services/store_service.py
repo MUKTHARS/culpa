@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import re
+
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
@@ -9,6 +11,7 @@ from core.errors import InvalidState, NotFound, PayPalError
 from core.ids import iso, new_id, utcnow
 from core.logging import get_logger
 from core.security import idempotency_key
+from engine.agent_policy import product_terms
 from models import Order, Product, ProductVersion
 from services import audit_service
 from services.paypal import orders as pp_orders
@@ -65,6 +68,30 @@ def seed(db: Session) -> int:
 
 def list_products(db: Session) -> list[dict]:
     return [product_dict(p) for p in db.execute(select(Product).order_by(Product.category, Product.id)).scalars()]
+
+
+def _natural(value: str) -> list:
+    """Sort key that orders "US 8" before "US 10"."""
+    return [int(part) if part.isdigit() else part.lower() for part in re.split(r"(\d+)", value)]
+
+
+def facets(db: Session) -> list[dict]:
+    """Shopping filters built from the catalog: every category group ("shoes") and subcategory ("shoes/running"),
+    with the attribute values its products actually have and the words people use for them (for detection).
+    """
+    nodes: dict[str, dict] = {}
+    for p in db.execute(select(Product)).scalars():
+        parts = [x for x in p.category.split("/") if x]
+        for depth in range(1, len(parts) + 1):
+            path = "/".join(parts[:depth])
+            node = nodes.setdefault(path, {"value": path, "label": parts[depth - 1].replace("-", " ").capitalize(),
+                                           "parent": "/".join(parts[:depth - 1]) or None,
+                                           "attributes": {}, "keywords": set()})
+            for key, value in p.attributes.items():
+                node["attributes"].setdefault(key, set()).add(value)
+            node["keywords"] |= product_terms(f"{p.title} {' '.join(parts[:depth])}")
+    return [{**n, "attributes": {k: sorted(v, key=_natural) for k, v in sorted(n["attributes"].items())},
+             "keywords": sorted(n["keywords"])} for _, n in sorted(nodes.items())]
 
 
 def get_product(db: Session, product_id: str) -> Product:

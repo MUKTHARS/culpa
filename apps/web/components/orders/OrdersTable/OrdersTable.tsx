@@ -89,7 +89,7 @@ export function OrdersTable({ orders, onChange, allowDispute = true }: Props) {
                   <tr className={styles.disputeRow}>
                     <td colSpan={7}>
                       <div ref={scrollIntoView}>
-                        <SimulateDispute orderId={o.id} onDone={() => { setDisputing(null); onChange(); }} />
+                        <SimulateDispute order={o} onDone={onChange} />
                       </div>
                     </td>
                   </tr>

@@ -55,7 +55,8 @@ def run(b: CaseBundle, llm=None) -> tuple[list[Evidence], list[str]]:
         return [Evidence(check="replay",
                          finding=f"Replay picked {original_id}, not the recorded {t.chosen_id}; the agent is not "
                                  "reproducible on the same inputs.",
-                         cite="trace", fault_class="F2", party="agent_provider", weight=0.3)], flags
+                         cite="trace", fault_class="F2", party="agent_provider", weight=0.3,
+                         primary=False)], flags
 
     bad = sorted(k for k, s in status.items() if s in ("mismatch", "missing"))
     if bad:

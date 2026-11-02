@@ -15,7 +15,7 @@ os.environ.update({
     "PAYPAL_CLIENT_SECRET": "",
     "PAYPAL_WEBHOOK_ID": "",
     "ALLOW_UNVERIFIED_WEBHOOKS": "true",
-    "ANTHROPIC_API_KEY": "",
+    "GEMINI_API_KEY": "",
     "ANALYST_USERNAME": "",
     "ANALYST_PASSWORD": "",
     "AUTO_SETTLE": "false",

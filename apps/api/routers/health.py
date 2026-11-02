@@ -32,7 +32,7 @@ def system_status():
         "paypal": {"configured": s.paypal_configured, "env": s.paypal_env,
                    "webhook_verification": bool(s.paypal_webhook_id), "breaker": breakers["paypal"].state},
         "llm": {"configured": s.llm_configured, "judge_model": s.llm_judge_model, "fast_model": s.llm_fast_model,
-                "breaker": breakers["claude"].state, "unavailable_reason": llm.unavailable_reason if llm else None},
+                "breaker": breakers["llm"].state, "unavailable_reason": llm.unavailable_reason if llm else None},
         "queue": {"mode": queue.queue_mode(), "depth": queue.depth()},
         "auto_settle": s.auto_settle,
         "confidence_threshold": s.confidence_threshold,

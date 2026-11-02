@@ -14,6 +14,11 @@ def products(db: Session = Depends(get_db)):
     return store_service.list_products(db)
 
 
+@router.get("/facets")
+def facets(db: Session = Depends(get_db)):
+    return store_service.facets(db)
+
+
 @router.get("/products/{product_id}")
 def product(product_id: str, db: Session = Depends(get_db)):
     return store_service.product_dict(store_service.get_product(db, product_id))

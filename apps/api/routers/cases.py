@@ -41,6 +41,6 @@ def reanalyze(case_id: str, db: Session = Depends(get_db), actor: str = Depends(
 
 @router.post("/{case_id}/approve")
 def approve(case_id: str, body: ApproveRequest, db: Session = Depends(get_db), actor: str = Depends(require_analyst)):
-    st = case_service.approve(db, case_id, actor=actor, action=body.action)
+    st = case_service.approve(db, case_id, actor=actor, action=body.action, amount=body.amount, note=body.note)
     db.commit()
     return {"settlement_id": st.id, "action": st.action, "status": st.status, "amount": st.amount}

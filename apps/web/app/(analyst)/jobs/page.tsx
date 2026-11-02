@@ -56,9 +56,9 @@ export default function JobsPage() {
           ) : (
             <div className="row">
               <Badge tone={status.data.paypal.breaker === "closed" ? "good" : "bad"}>PayPal breaker: {status.data.paypal.breaker}</Badge>
-              <Badge tone={status.data.llm.breaker === "closed" ? "good" : "bad"}>Claude breaker: {status.data.llm.breaker}</Badge>
+              <Badge tone={status.data.llm.breaker === "closed" ? "good" : "bad"}>AI ({status.data.llm.fast_model}) breaker: {status.data.llm.breaker}</Badge>
               {status.data.llm.unavailable_reason && (
-                <Badge tone="bad">Claude unavailable: {status.data.llm.unavailable_reason}</Badge>
+                <Badge tone="bad">AI unavailable: {status.data.llm.unavailable_reason}</Badge>
               )}
               <Badge tone="neutral">Transport: {status.data.queue.mode}</Badge>
               {status.data.queue.depth != null && <Badge tone="neutral">Stream length: {status.data.queue.depth}</Badge>}

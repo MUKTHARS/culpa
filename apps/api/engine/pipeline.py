@@ -4,7 +4,9 @@ from __future__ import annotations
 
 from engine.checks import claim, listing, replay, rules
 from engine.dsa import topo_layers
+from engine.claim_types import classify
 from engine.policy import decide
+from engine.reasons import explain
 from engine.scoring import score
 from engine.types import FAULT_NAMES, PARTIES, CaseBundle, Evidence, Verdict
 
@@ -31,9 +33,12 @@ def analyze(b: CaseBundle, llm=None, threshold: float = 0.8, use_replay: bool = 
                        finding="Evidence fingerprint does not match the root recorded at checkout"
                        if "evidence_tampered" in flags else "Mandate signature is invalid",
                        cite="order.evidence_root")]
-        return Verdict(fault_class=None, fault_name=None, split=dict.fromkeys(PARTIES, 0.0), confidence=0.0,
+        split = dict.fromkeys(PARTIES, 0.0)
+        return Verdict(fault_class=None, fault_name=None, split=split, confidence=0.0,
                        action="review", refund_amount=None, liability={}, evidence=ev, flags=flags,
-                       check_order=layers)
+                       check_order=layers, claim_category=classify(b.claim.reason, b.claim.text),
+                       reason=explain(fault_class=None, category="other", flags=flags, evidence=ev, split=split,
+                                      action="review"))
 
     evidence: list[Evidence] = []
     ran: list[list[str]] = []
@@ -63,6 +68,7 @@ def analyze(b: CaseBundle, llm=None, threshold: float = 0.8, use_replay: bool = 
     flags = sorted(set(flags))
     fault_class, split, confidence = score(evidence, flags)
     action, refund_amount, liability = decide(fault_class, split, confidence, b.order.amount, threshold)
+    category = classify(b.claim.reason, b.claim.text)
     return Verdict(
         fault_class=fault_class,
         fault_name=FAULT_NAMES.get(fault_class) if fault_class else None,
@@ -75,4 +81,7 @@ def analyze(b: CaseBundle, llm=None, threshold: float = 0.8, use_replay: bool = 
         flags=flags,
         check_order=ran,
         degraded="degraded" in flags,
+        claim_category=category,
+        reason=explain(fault_class=fault_class, category=category, flags=flags, evidence=evidence, split=split,
+                       action=action),
     )

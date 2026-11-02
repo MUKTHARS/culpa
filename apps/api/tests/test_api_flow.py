@@ -122,3 +122,21 @@ def test_cannot_dispute_uncaptured_order(client):
 @pytest.mark.parametrize("bad", ["refund_all", "pay_me"])
 def test_approve_rejects_unknown_action(client, bad):
     assert client.post("/cases/whatever/approve", json={"action": bad}).status_code == 422
+
+
+def test_analyst_sets_a_partial_refund_amount_and_note(client, drain):
+    shop, order = _buy(client, instruction="running shoes size 9 under $120", required={"size": "9"}, buyer="buyer_pat")
+    assert client.post(f"/orders/{order['id']}/ship").status_code == 200
+    case = _dispute(client, drain, order["id"], "I wanted US 9, they sent UK 9.")
+    assert case["verdict"]["reason"]["code"] == "AGT-03"  # every verdict explains itself
+
+    too_much = client.post(f"/cases/{case['id']}/approve", json={"action": "refund_partial", "amount": case["amount"]})
+    assert too_much.status_code == 400 and "less than" in too_much.json()["detail"]
+
+    r = client.post(f"/cases/{case['id']}/approve",
+                    json={"action": "refund_partial", "amount": "40", "note": "Goodwill: buyer keeps the shoes."})
+    assert r.status_code == 200, r.text
+    assert r.json()["amount"] == "40.00"
+    audit = client.get(f"/cases/{case['id']}").json()["audit"]
+    approved = next(a for a in audit if a["action"] == "settlement.approved")
+    assert approved["data"]["note"] == "Goodwill: buyer keeps the shoes."

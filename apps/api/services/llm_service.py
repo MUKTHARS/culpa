@@ -1,9 +1,7 @@
-"""Builds the engine's Claude client with a memo cache backed by an in-process LRU and the llm_cache table."""
+"""Builds the engine's Gemini client with a memo cache backed by an in-process LRU and the llm_cache table."""
 
 from __future__ import annotations
 
-import anthropic
-import httpx2
 from sqlalchemy.exc import IntegrityError
 
 from core.cache import LRUCache
@@ -11,7 +9,7 @@ from core.config import get_settings
 from core.database import SessionLocal
 from core.logging import get_logger
 from core.resilience import breakers
-from engine.llm import ClaudeLLM
+from engine.llm import GeminiLLM
 from models import LLMCache
 
 log = get_logger(__name__)
@@ -49,21 +47,16 @@ class DBMemo:
                 log.warning("llm_cache_write_failed", error=str(exc))
 
 
-_llm: ClaudeLLM | None = None
+_llm: GeminiLLM | None = None
 
 
-def get_llm() -> ClaudeLLM | None:
+def get_llm() -> GeminiLLM | None:
     global _llm
     s = get_settings()
     if not s.llm_configured:
         return None
     if _llm is None:
-        client = None
-        if s.llm_ipv4_only:
-            # Binding to 0.0.0.0 makes the HTTP client (httpx2, used by this SDK) open IPv4 connections only.
-            http = httpx2.Client(transport=httpx2.HTTPTransport(local_address="0.0.0.0"), timeout=s.llm_timeout_s)
-            client = anthropic.Anthropic(api_key=s.anthropic_api_key, timeout=s.llm_timeout_s, max_retries=2,
-                                         http_client=http)
-        _llm = ClaudeLLM(api_key=s.anthropic_api_key, judge_model=s.llm_judge_model, fast_model=s.llm_fast_model,
-                         timeout_s=s.llm_timeout_s, memo=DBMemo(), breaker=breakers["claude"], client=client)
+        _llm = GeminiLLM(api_key=s.gemini_api_key, judge_model=s.llm_judge_model, fast_model=s.llm_fast_model,
+                         timeout_s=s.llm_timeout_s, memo=DBMemo(), breaker=breakers["llm"],
+                         temperature=s.llm_temperature)
     return _llm

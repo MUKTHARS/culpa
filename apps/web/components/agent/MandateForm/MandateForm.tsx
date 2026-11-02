@@ -1,25 +1,31 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import type { ShopInput } from "@/api/agent";
 import { Button } from "@/components/ui/Button/Button";
-import { Field, Select, TextArea } from "@/components/ui/Field/Field";
-import { cx, parseAttributes } from "@/lib/utils";
+import { Field, Select } from "@/components/ui/Field/Field";
+import { useStoreFacets } from "@/hooks/useProducts";
+import { attributeLabel, categoryLabel, detectCategory, orderedAttributes } from "@/lib/facets";
+import { cx } from "@/lib/utils";
 import styles from "./MandateForm.module.css";
 
-const EXAMPLES = [
-  { label: "Ambiguous size", instruction: "running shoes size 9 under $120", category: "shoes", attrs: "size: 9", max: "120" },
-  { label: "Exact size", instruction: "running shoes size US 9", category: "shoes", attrs: "size: US 9", max: "120" },
-  { label: "Leather jacket", instruction: "brown leather jacket size M", category: "apparel/jackets", attrs: "size: M\nmaterial: Leather", max: "200" },
+interface Example {
+  label: string;
+  instruction: string;
+  category: string;
+  attrs: Record<string, string>;
+  max: string;
+}
+
+// "Ambiguous size" deliberately asks for size "9" without a system (UK, US, EU): the agent replay demo needs it.
+const EXAMPLES: Example[] = [
+  { label: "Ambiguous size", instruction: "running shoes size 9 under $120", category: "shoes", attrs: { size: "9" }, max: "120" },
+  { label: "Exact size", instruction: "running shoes size US 9", category: "shoes", attrs: { size: "US 9" }, max: "120" },
+  { label: "Leather jacket", instruction: "brown leather jacket size M", category: "apparel/jackets", attrs: { size: "M", material: "Leather" }, max: "200" },
 ];
 
-export const CATEGORIES = [
-  { value: "", label: "Any category" },
-  { value: "shoes", label: "Shoes" },
-  { value: "apparel", label: "Apparel" },
-  { value: "apparel/jackets", label: "Jackets" },
-  { value: "electronics", label: "Electronics" },
-];
+const sameAttrs = (a: Record<string, string>, b: Record<string, string>) =>
+  JSON.stringify(Object.entries(a).sort()) === JSON.stringify(Object.entries(b).sort());
 
 interface Props {
   buyerId: string;
@@ -31,26 +37,39 @@ interface Props {
 }
 
 export function MandateForm({ buyerId, deviceId, pending, onSubmit, onDraftChange }: Props) {
+  const { data: facets } = useStoreFacets();
   // Starts empty: the buyer writes their own mandate or picks an example.
   const [instruction, setInstruction] = useState("");
-  const [category, setCategory] = useState("");
-  const [attrText, setAttrText] = useState("");
+  // null = follow the category detected from the instruction; a string = the buyer (or an example) chose it.
+  const [chosenCategory, setChosenCategory] = useState<string | null>(null);
+  const [attrs, setAttrs] = useState<Record<string, string>>({});
   const [max, setMax] = useState("");
-  // The preset whose values are in the fields right now (-1 when none match), however they got there.
+
+  const detected = useMemo(() => detectCategory(instruction, facets ?? []), [instruction, facets]);
+  const category = chosenCategory ?? detected;
+  const facet = facets?.find((f) => f.value === category);
+  const filterKeys = facet ? orderedAttributes(facet) : [];
+
+  // Only filters that exist for the category count, and "Any" is not a requirement.
+  const required: Record<string, string> = {};
+  for (const [k, v] of Object.entries(attrs)) if (v && (!facets || filterKeys.includes(k))) required[k] = v;
+
   const active = EXAMPLES.findIndex(
-    (ex) => ex.instruction === instruction && ex.category === category && ex.attrs === attrText && ex.max === max,
+    (ex) => ex.instruction === instruction && ex.category === category && sameAttrs(ex.attrs, required) && ex.max === max,
   );
 
+  const draft: ShopInput = {
+    buyer_id: buyerId,
+    device_id: deviceId,
+    instruction,
+    category: category || undefined,
+    max_amount: max || undefined,
+    required_attributes: required,
+  };
+  const draftKey = JSON.stringify(draft);
   useEffect(() => {
-    onDraftChange?.({
-      buyer_id: buyerId,
-      device_id: deviceId,
-      instruction,
-      category: category || undefined,
-      max_amount: max || undefined,
-      required_attributes: parseAttributes(attrText),
-    });
-  }, [onDraftChange, buyerId, deviceId, instruction, category, max, attrText]);
+    onDraftChange?.(JSON.parse(draftKey) as ShopInput);
+  }, [onDraftChange, draftKey]);
 
   return (
     <form
@@ -59,14 +78,7 @@ export function MandateForm({ buyerId, deviceId, pending, onSubmit, onDraftChang
       autoComplete="off"
       onSubmit={(e) => {
         e.preventDefault();
-        onSubmit({
-          buyer_id: buyerId,
-          device_id: deviceId,
-          instruction,
-          category: category || undefined,
-          max_amount: max || undefined,
-          required_attributes: parseAttributes(attrText),
-        });
+        onSubmit(draft);
       }}
     >
       <label className={styles.task}>
@@ -79,7 +91,7 @@ export function MandateForm({ buyerId, deviceId, pending, onSubmit, onDraftChang
           required
           minLength={3}
           maxLength={500}
-          placeholder="Describe the item, the size or colour you need, and your budget"
+          placeholder="Describe the item and your budget, like “wireless earphones under $150”"
         />
       </label>
 
@@ -92,7 +104,7 @@ export function MandateForm({ buyerId, deviceId, pending, onSubmit, onDraftChang
               type="button"
               className={cx(styles.segment, active === i && styles.segmentActive)}
               aria-pressed={active === i}
-              onClick={() => { setInstruction(ex.instruction); setCategory(ex.category); setAttrText(ex.attrs); setMax(ex.max); }}
+              onClick={() => { setInstruction(ex.instruction); setChosenCategory(ex.category); setAttrs(ex.attrs); setMax(ex.max); }}
             >
               {ex.label}
             </button>
@@ -120,17 +132,59 @@ export function MandateForm({ buyerId, deviceId, pending, onSubmit, onDraftChang
             </span>
             <span className={styles.hint} id="cap-hint">The agent can never spend more than this.</span>
           </label>
-          <Field label="Category">
-            <Select value={category} onChange={(e) => setCategory(e.target.value)}>
-              {CATEGORIES.map((c) => (
-                <option key={c.value} value={c.value}>{c.label}</option>
-              ))}
+          <Field
+            label="Category"
+            hint={chosenCategory === null && detected ? "Picked from your request. Change it if it's wrong." : undefined}
+          >
+            <Select value={category} onChange={(e) => setChosenCategory(e.target.value)}>
+              <option value="">Any category</option>
+              {(facets ?? [])
+                .filter((f) => f.parent === null)
+                .map((group) => (
+                  <optgroup key={group.value} label={group.label}>
+                    <option value={group.value}>All {group.label.toLowerCase()}</option>
+                    {facets!
+                      .filter((f) => f.parent === group.value)
+                      .map((f) => (
+                        <option key={f.value} value={f.value}>{f.label}</option>
+                      ))}
+                  </optgroup>
+                ))}
+              {/* An example's category stays selectable before the catalog has loaded. */}
+              {category && !facet && <option value={category}>{categoryLabel(category)}</option>}
             </Select>
           </Field>
         </div>
-        <Field label="Must match" hint="One per line, like size: 9. The agent may only buy an item with these exact values.">
-          <TextArea value={attrText} onChange={(e) => setAttrText(e.target.value)} rows={3} placeholder="size: 9" />
-        </Field>
+
+        {facet && filterKeys.length > 0 ? (
+          <div className={styles.filters}>
+            <p className={styles.filtersNote}>
+              Filters for {categoryLabel(category).toLowerCase()}. Leave one on “Any” if it doesn&apos;t matter.
+            </p>
+            <div className={styles.grid}>
+              {filterKeys.map((key) => {
+                const values = facet.attributes[key];
+                const current = attrs[key] ?? "";
+                return (
+                  <Field key={key} label={attributeLabel(key)}>
+                    <Select value={current} onChange={(e) => setAttrs({ ...attrs, [key]: e.target.value })}>
+                      <option value="">Any</option>
+                      {values.map((v) => (
+                        <option key={v} value={v}>{v}</option>
+                      ))}
+                      {/* A value given in other words (an example's "9"), kept so it isn't silently dropped. */}
+                      {current && !values.includes(current) && <option value={current}>{current} (as written)</option>}
+                    </Select>
+                  </Field>
+                );
+              })}
+            </div>
+          </div>
+        ) : (
+          <p className={styles.filtersNote}>
+            {category ? "This category has no filters." : "Pick a category, or describe the item above, to filter by size, colour and more."}
+          </p>
+        )}
       </fieldset>
 
       <div className={styles.submit}>

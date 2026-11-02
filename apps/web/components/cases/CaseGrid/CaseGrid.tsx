@@ -34,6 +34,7 @@ export function CaseGrid({ rows }: { rows: CaseRow[] }) {
         flex: 1,
         minWidth: 210,
       },
+      { field: "reason_title", headerName: "Why", flex: 1, minWidth: 220, valueFormatter: (p) => p.value || "—" },
       { field: "confidence", headerName: "Confidence", valueFormatter: (p) => pct(p.value), width: 120 },
       {
         field: "recommended_action",

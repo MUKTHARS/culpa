@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from datetime import timedelta
+from decimal import Decimal
 
 from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
@@ -192,7 +193,8 @@ def analyze(db: Session, case_id: str) -> Case:
     return case
 
 
-def approve(db: Session, case_id: str, *, actor: str, action: str | None) -> Settlement:
+def approve(db: Session, case_id: str, *, actor: str, action: str | None, amount: str | None = None,
+            note: str | None = None) -> Settlement:
     lock_key(db, f"case:{case_id}")
     case = db.get(Case, case_id)
     if case is None:
@@ -205,9 +207,10 @@ def approve(db: Session, case_id: str, *, actor: str, action: str | None) -> Set
     chosen = action or case.recommended_action
     if chosen not in ("refund_full", "refund_partial", "contest"):
         raise CulpaError("choose an action: refund_full, refund_partial or contest")
-    if chosen == "refund_partial" and not case.refund_amount:
-        raise CulpaError("no partial amount was computed for this case")
-    amount = {"refund_full": case.amount, "refund_partial": case.refund_amount, "contest": None}[chosen]
+    if chosen == "refund_partial":
+        amount = _partial_amount(case, amount)
+    else:
+        amount = {"refund_full": case.amount, "contest": None}[chosen]
     st = Settlement(id=new_id("stl"), case_id=case.id, action=chosen, status="approved",
                     idempotency_key=idempotency_key(case.id, chosen), amount=amount, approved_by=actor)
     db.add(st)
@@ -219,9 +222,21 @@ def approve(db: Session, case_id: str, *, actor: str, action: str | None) -> Set
     case.status = "settling"
     _touch(case)
     audit_service.append(db, actor=actor, action="settlement.approved", case_id=case.id,
-                         data={"action": chosen, "amount": amount, "override": bool(action and action != case.recommended_action)})
+                         data={"action": chosen, "amount": amount, "note": (note or "").strip() or None,
+                               "override": bool(action and action != case.recommended_action)})
     outbox_service.add(db, "settlement.requested", {"settlement_id": st.id})
     return st
+
+
+def _partial_amount(case: Case, requested: str | None) -> str:
+    """The analyst's amount, or the policy's; always more than zero and less than the order total."""
+    value = requested or case.refund_amount
+    if not value:
+        raise CulpaError("enter the amount to refund")
+    amount, total = Decimal(value).quantize(Decimal("0.01")), Decimal(case.amount)
+    if not Decimal("0") < amount < total:
+        raise CulpaError(f"a partial refund must be more than 0 and less than {case.currency} {total}")
+    return str(amount)
 
 
 def reanalyze(db: Session, case_id: str, actor: str) -> Case:
@@ -243,6 +258,7 @@ def case_row(c: Case) -> dict:
         "currency": c.currency, "buyer_id": c.buyer_id, "order_id": c.order_id, "paypal_dispute_id": c.paypal_dispute_id,
         "fault_class": c.fault_class, "fault_name": c.fault_name, "split": c.split, "confidence": c.confidence,
         "recommended_action": c.recommended_action, "refund_amount": c.refund_amount, "flags": c.flags or [],
+        "reason_title": ((c.verdict or {}).get("reason") or {}).get("title"),
         "created_at": iso(c.created_at), "updated_at": iso(c.updated_at),
     }
 

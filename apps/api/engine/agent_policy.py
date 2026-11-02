@@ -3,7 +3,7 @@
 - attribute_aware: deterministic heuristic, matches instruction words to product title and attributes.
 - price_first:     a deliberately flawed agent that ignores attributes and buys the cheapest item
                    (used by the benchmark to model agent reasoning errors).
-- llm:             Claude picks the product (needs an LLM client).
+- llm:             the language model picks the product (needs an LLM client).
 """
 
 from __future__ import annotations
@@ -33,9 +33,21 @@ def _stem(word: str) -> str:
     return word[:-1] if len(word) > 3 and word.endswith("s") else word
 
 
-def _product_terms(text: str) -> set[str]:
+# Everyday names for the same product ("earphones" for earbuds or headphones). Applied to both sides of a comparison.
+_SYNONYMS = {
+    "earphone": {"earbud", "headphone"}, "earbud": {"earphone", "headphone"}, "headphone": {"earphone", "earbud"},
+    "headset": {"headphone"}, "sneaker": {"shoe"}, "trainer": {"shoe"}, "coat": {"jacket"}, "shirt": {"tee"},
+    "backpack": {"pack"}, "bag": {"pack"}, "pan": {"skillet"}, "blanket": {"throw"},
+}
+
+
+def product_terms(text: str) -> set[str]:
     """Words that can identify a product: no budget words, no bare numbers ("9" alone could be any size)."""
-    return {_stem(t) for t in tokens(text) if t not in _NOT_PRODUCT_WORDS and not t.replace(".", "").isdigit()}
+    terms = {_stem(t) for t in tokens(text) if t not in _NOT_PRODUCT_WORDS and not t.replace(".", "").isdigit()}
+    for t in list(terms):
+        terms |= _SYNONYMS.get(t, set())
+    terms |= {name for name, same in _SYNONYMS.items() if same & terms}  # "pack" also answers to "backpack"
+    return terms
 
 
 def relates_to(instruction: str, title: str, category: str, attributes: dict[str, str]) -> bool:
@@ -43,10 +55,10 @@ def relates_to(instruction: str, title: str, category: str, attributes: dict[str
 
     An instruction with no product words at all ("under $50") constrains nothing, so any item relates to it.
     """
-    wanted = _product_terms(instruction)
+    wanted = product_terms(instruction)
     if not wanted:
         return True
-    return bool(wanted & _product_terms(" ".join([title, category, *attributes.values()])))
+    return bool(wanted & product_terms(" ".join([title, category, *attributes.values()])))
 
 
 def parse_budget(instruction: str) -> Decimal | None:
@@ -75,10 +87,13 @@ def attribute_aware(instruction: str, candidates: list[Candidate]) -> tuple[str,
     if not candidates:
         raise ValueError("no candidates")
     want = set(tokens(instruction))
-    pool = _affordable(instruction, candidates)
-    if not any(relates_to(instruction, c.title, c.category, c.attributes) for c in pool):
+    # Only items that are the kind of thing asked for compete: "headphones" never ends up as the cheapest speaker.
+    pool = [c for c in _affordable(instruction, candidates) if relates_to(instruction, c.title, c.category, c.attributes)]
+    if not pool:
         raise NoMatch(f"nothing in the catalog matches {instruction!r}")
-    ranked = sorted(pool, key=lambda c: (-len(want & _words(c)), Decimal(c.price), c.id))
+    asked = product_terms(instruction)
+    # Closest product name first ("headphones": headphones over earbuds), then exact word matches, then price.
+    ranked = sorted(pool, key=lambda c: (-len(asked & product_terms(c.title)), -len(want & _words(c)), Decimal(c.price), c.id))
     best = ranked[0]
     matched = sorted(want & _words(best))
     return best.id, f"Best match on {', '.join(matched) or 'no shared terms'}; cheapest among equal matches."

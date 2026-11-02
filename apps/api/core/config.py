@@ -31,14 +31,13 @@ class Settings(BaseSettings):
     paypal_env: str = "sandbox"
     allow_unverified_webhooks: bool = False
 
-    # Claude
-    anthropic_api_key: str = ""
-    llm_judge_model: str = "claude-opus-5-5"
-    llm_fast_model: str = "claude-haiku-5-5"
+    # Google Gemini (aistudio.google.com > Get API key). Both models must be ones the key can use.
+    gemini_api_key: str = ""
+    llm_judge_model: str = "gemini-3.5-flash"
+    llm_fast_model: str = "gemini-3.5-flash-lite"
     llm_timeout_s: float = 60.0
-    # Connect to the Anthropic API over IPv4. On networks with a broken IPv6 route, every new connection
-    # otherwise waits ~21 s for the IPv6 attempt to time out before falling back.
-    llm_ipv4_only: bool = True
+    # Fixed sampling temperature for repeatable answers.
+    llm_temperature: float = 0.0
 
     # Security
     mandate_signing_secret: str = "dev-only-change-me"
@@ -72,7 +71,7 @@ class Settings(BaseSettings):
 
     @property
     def llm_configured(self) -> bool:
-        return bool(self.anthropic_api_key)
+        return bool(self.gemini_api_key)
 
     @property
     def is_production(self) -> bool:

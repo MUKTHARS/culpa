@@ -6,7 +6,7 @@ const LABEL: Record<string, string> = {
   claim_keywords: "Baseline: reads the claim only",
   culpa_no_replay: "Culpa without agent replay",
   culpa_full: "Culpa (all four checks)",
-  culpa_full_llm: "Culpa + Claude judge",
+  culpa_full_llm: "Culpa + Gemini judge",
 };
 
 export function ResultsTable({ results }: { results: BenchResults }) {

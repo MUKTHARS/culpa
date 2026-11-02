@@ -45,8 +45,8 @@ export function Header() {
                 PayPal {status.paypal.configured ? status.paypal.env : "simulated"}
               </Badge>
               <Badge tone={status.llm.configured ? "good" : "neutral"}
-                     title={status.llm.configured ? status.llm.judge_model : "No Anthropic key: rule-based checks only"}>
-                Claude {status.llm.configured ? "on" : "off"}
+                     title={status.llm.configured ? status.llm.judge_model : "No Gemini key: rule-based checks only"}>
+                AI {status.llm.configured ? "on" : "off"}
               </Badge>
               <Badge tone="neutral" title="Queue transport">
                 Queue: {status.queue.mode}

@@ -8,7 +8,7 @@ from core.ids import utcnow
 
 
 class LLMCache(Base):
-    """Memoized Claude outputs keyed by a hash of model + prompt version + inputs."""
+    """Memoized language-model outputs keyed by a hash of model + prompt version + inputs."""
 
     __tablename__ = "llm_cache"
 

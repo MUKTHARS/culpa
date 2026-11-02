@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-01T12:29:43Z",
+  "generated_at": "2026-11-02T04:21:28Z",
   "n_cases": 150,
   "n_hard": 30,
   "systems": [
@@ -45,7 +45,7 @@
           }
         }
       },
-      "ms_per_case": 0.023,
+      "ms_per_case": 0.025,
       "predictions": [
         {
           "id": "F1-000",
@@ -956,7 +956,7 @@
         "accuracy": 0.653,
         "macro_f1": 0.66,
         "wrong_money_rate": 0.0,
-        "escalation_rate": 0.38,
+        "escalation_rate": 0.347,
         "auto_decided_accuracy": 1.0,
         "friendly_fraud_recall": 1.0,
         "false_accusation_rate": 0.0,
@@ -986,7 +986,7 @@
           }
         }
       },
-      "ms_per_case": 0.066,
+      "ms_per_case": 0.121,
       "predictions": [
         {
           "id": "F1-000",
@@ -1831,37 +1831,37 @@
         {
           "id": "F5-020",
           "pred": "F5",
-          "action": "review",
-          "bearer": null,
-          "confidence": 0.75
+          "action": "refund_full",
+          "bearer": "merchant",
+          "confidence": 0.875
         },
         {
           "id": "F5-021",
           "pred": "F5",
-          "action": "review",
-          "bearer": null,
-          "confidence": 0.75
+          "action": "refund_full",
+          "bearer": "merchant",
+          "confidence": 0.875
         },
         {
           "id": "F5-022",
           "pred": "F5",
-          "action": "review",
-          "bearer": null,
-          "confidence": 0.75
+          "action": "refund_full",
+          "bearer": "merchant",
+          "confidence": 0.875
         },
         {
           "id": "F5-023",
           "pred": "F5",
-          "action": "review",
-          "bearer": null,
-          "confidence": 0.75
+          "action": "refund_full",
+          "bearer": "merchant",
+          "confidence": 0.875
         },
         {
           "id": "F5-024",
           "pred": "F5",
-          "action": "review",
-          "bearer": null,
-          "confidence": 0.75
+          "action": "refund_full",
+          "bearer": "merchant",
+          "confidence": 0.875
         },
         {
           "id": "F6-000",
@@ -2047,7 +2047,7 @@
         "accuracy": 0.987,
         "macro_f1": 0.993,
         "wrong_money_rate": 0.0,
-        "escalation_rate": 0.06,
+        "escalation_rate": 0.027,
         "auto_decided_accuracy": 1.0,
         "friendly_fraud_recall": 1.0,
         "false_accusation_rate": 0.0,
@@ -2077,7 +2077,7 @@
           }
         }
       },
-      "ms_per_case": 0.086,
+      "ms_per_case": 0.162,
       "predictions": [
         {
           "id": "F1-000",
@@ -2922,37 +2922,37 @@
         {
           "id": "F5-020",
           "pred": "F5",
-          "action": "review",
-          "bearer": null,
-          "confidence": 0.75
+          "action": "refund_full",
+          "bearer": "merchant",
+          "confidence": 0.875
         },
         {
           "id": "F5-021",
           "pred": "F5",
-          "action": "review",
-          "bearer": null,
-          "confidence": 0.75
+          "action": "refund_full",
+          "bearer": "merchant",
+          "confidence": 0.875
         },
         {
           "id": "F5-022",
           "pred": "F5",
-          "action": "review",
-          "bearer": null,
-          "confidence": 0.75
+          "action": "refund_full",
+          "bearer": "merchant",
+          "confidence": 0.875
         },
         {
           "id": "F5-023",
           "pred": "F5",
-          "action": "review",
-          "bearer": null,
-          "confidence": 0.75
+          "action": "refund_full",
+          "bearer": "merchant",
+          "confidence": 0.875
         },
         {
           "id": "F5-024",
           "pred": "F5",
-          "action": "review",
-          "bearer": null,
-          "confidence": 0.75
+          "action": "refund_full",
+          "bearer": "merchant",
+          "confidence": 0.875
         },
         {
           "id": "F6-000",

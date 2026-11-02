@@ -16,7 +16,7 @@ import { FAULT_LABEL, STATUS_TONE, attrs, humanize, money, pct, shortHash } from
 import styles from "./page.module.css";
 
 const FLAG_LABEL: Record<string, string> = {
-  llm_unavailable: "Rule-based (Claude unavailable)",
+  llm_unavailable: "Rule-based (AI unavailable)",
   decided_by_rules: "Decided by mandate rules",
   replay_unavailable: "Replay unavailable",
   nondeterministic: "Agent not reproducible",
@@ -57,14 +57,25 @@ export default function CaseDetailPage() {
       {data.error && <p className="error">{data.error}</p>}
       {data.flags.includes("llm_unavailable") && (
         <p className={styles.notice}>
-          Claude was unavailable for this analysis, so the verdict comes from the rule-based checks: the mandate, the
+          Gemini was unavailable for this analysis, so the verdict comes from the rule-based checks: the mandate, the
           listing history, the agent replay and the buyer's record. See Jobs for the reason.
         </p>
       )}
 
+      {v?.reason?.title && !analyzing && (
+        <section className={styles.reason} aria-label="Why this verdict">
+          <div className={styles.reasonHead}>
+            <Badge tone="accent">{v.reason.code}</Badge>
+            <h2 className={styles.reasonTitle}>{v.reason.title}</h2>
+          </div>
+          <p>{v.reason.summary}</p>
+          <p className={styles.reasonRule}>Rule followed: {v.reason.reference}</p>
+        </section>
+      )}
+
       <div className={styles.layout}>
         <div className="stack">
-          <Card title="Who is at fault" subtitle="Share of responsibility from the weighted evidence.">
+          <Card title="Who is at fault" subtitle="Set by the cause of the problem. Other findings only change the confidence.">
             {analyzing ? (
               <Loader label="Checking the mandate, the listing, the agent's decision and the claim…" />
             ) : (
@@ -76,7 +87,7 @@ export default function CaseDetailPage() {
           </Card>
           {v && (
             <Card title="Evidence" subtitle={`Checks ran in order: ${v.check_order.map((l) => l.join(" + ")).join(" → ")}`}>
-              <EvidenceList evidence={v.evidence} />
+              <EvidenceList evidence={v.evidence} faultClass={data.fault_class} />
             </Card>
           )}
           <Card title="Agent replay" subtitle="The recorded decision, re-run on the same inputs and on a clarified instruction.">

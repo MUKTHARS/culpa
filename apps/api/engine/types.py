@@ -149,6 +149,9 @@ class Evidence:
     fault_class: str | None = None
     party: str | None = None
     weight: float = 0.0
+    # True: a cause of the problem, which decides who is at fault. False: a supporting signal (dispute history,
+    # account graph, the AI judge), which only raises or lowers confidence.
+    primary: bool = True
 
 
 @dataclass
@@ -164,6 +167,9 @@ class Verdict:
     flags: list[str]
     check_order: list[list[str]]
     degraded: bool = False
+    claim_category: str = "other"
+    # {code, title, summary, reference}: the plain-language reason shown first to the analyst.
+    reason: dict[str, str] = field(default_factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         return asdict(self)

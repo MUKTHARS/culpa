@@ -2,7 +2,7 @@
 #   docker compose up -d --build        -> web http://localhost:3000, API http://localhost:8000
 #   docker compose up -d redis postgres -> only the data services, run API/web from source
 #   docker compose logs -f api          -> follow one service (containers are named culpa-<service>)
-# Secrets come from apps/api/.env (PayPal, Anthropic). Compose overrides the storage URLs.
+# Secrets come from apps/api/.env (PayPal, Gemini). Compose overrides the storage URLs.
 
 name: culpa
 

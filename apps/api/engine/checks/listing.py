@@ -18,8 +18,9 @@ def run(b: CaseBundle) -> list[Evidence]:
                                 cite="delivery", fault_class="F5", party="merchant", weight=0.9))
         else:
             out.append(Evidence(check="listing",
-                                finding=f"Shipped (tracking {d.tracking or 'n/a'}) but delivery was never confirmed.",
-                                cite="delivery.tracking", fault_class="F5", party="merchant", weight=0.6))
+                                finding=f"Shipped (tracking {d.tracking or 'n/a'}) but delivery was never confirmed. "
+                                        "Without proof of delivery, a not-received claim goes to the buyer.",
+                                cite="delivery.tracking", fault_class="F5", party="merchant", weight=0.7))
         return out
 
     if d.attributes is None:

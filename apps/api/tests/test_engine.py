@@ -131,17 +131,17 @@ def test_unrelated_purchase_is_agent_fault_not_friendly_fraud():
 
 
 class NoCreditLLM:
-    """Every call fails the way an Anthropic account without credit does."""
+    """Every call fails the way an API account without credit does."""
 
-    fast_model = "claude-haiku-5-5"
+    fast_model = "gemini-3.5-flash-lite"
 
     def _fail(self, *_, **__):
-        raise LLMUnavailable("Anthropic account has no credit left")
+        raise LLMUnavailable("Gemini free quota reached")
 
     choose_product = clarify = judge_claim = _fail
 
 
-def test_claude_outage_falls_back_to_rule_based_verdicts_without_capping():
+def test_llm_outage_falls_back_to_rule_based_verdicts_without_capping():
     llm = NoCreditLLM()
     f3 = analyze(bundle(chosen=UK9, required={"size": "9"}, instruction="running shoes size 9",
                         claim="I wanted US 9, they sent UK 9."), llm=llm)
@@ -149,3 +149,33 @@ def test_claude_outage_falls_back_to_rule_based_verdicts_without_capping():
     assert "llm_unavailable" in f3.flags and not f3.degraded
     f6 = analyze(bundle(claim="It never arrived."), llm=llm)
     assert f6.fault_class == "F6" and f6.action == "contest" and f6.confidence >= 0.8
+
+
+def test_agent_never_buys_an_unrelated_cheaper_item():
+    # Only the earbuds relate to "headphones"; the cheaper speaker must not win on price.
+    from engine.types import Candidate
+    speaker = Candidate(id="spk", title="Field Portable Speaker", price="59.00", category="electronics/audio")
+    buds = Candidate(id="buds", title="Pocket Wireless Earbuds", price="79.00", category="electronics/audio")
+    assert attribute_aware("headphones", [speaker, buds])[0] == "buds"
+
+
+def test_fault_follows_the_cause_not_a_vote():
+    from engine.scoring import score
+    from engine.types import Evidence
+
+    never_shipped = Evidence("listing", "No shipment recorded.", "delivery", "F5", "merchant", 0.9)
+    wrong_pick = Evidence("replay", "Agent bought a speaker for 'headphones'.", "trace", "F2", "agent_provider", 0.85)
+    disputes = Evidence("claim", "12 disputes in 30 days.", "history", "F6", "buyer", 0.3, primary=False)
+    judge = Evidence("claim", "Judge doubts the claim.", "judge", "F6", "buyer", 0.38, primary=False)
+
+    # Nothing was delivered: the merchant is at fault, 100%, whatever else is true.
+    fault, split, confidence = score([never_shipped, wrong_pick, disputes, judge], [])
+    assert fault == "F5" and split == {"buyer": 0.0, "merchant": 1.0, "agent_provider": 0.0}
+    assert 0.8 <= confidence < 0.97  # other issues make it less clear-cut, but it still settles
+
+    # A wrong item received (delivery differs from the listing) beats an agent mistake.
+    changed = Evidence("listing", "Delivered item differs from the listing.", "snapshot", "F4", "merchant", 0.9)
+    assert score([changed, wrong_pick], [])[:2] == ("F4", {"buyer": 0.0, "merchant": 1.0, "agent_provider": 0.0})
+
+    # Supporting signals alone never decide fault confidently.
+    assert score([disputes, judge], [])[2] < 0.8
