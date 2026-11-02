@@ -102,8 +102,6 @@ One command runs the 213 backend tests, including all 126 dispute scenarios, the
 The benchmark and the scenarios can also be run on their own with python bench/run.py and python bench/scenarios.py.
 
 
-Demo credentails : login {analyst/ QsHjrvQpsB5qxNXY}, paypal credentials: {email:sb-3khub53626478@personal.example.com/ password: ^x.3L25$}
-
 License
 
 MIT. See the LICENSE file.
