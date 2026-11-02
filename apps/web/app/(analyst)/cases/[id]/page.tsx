@@ -12,7 +12,7 @@ import { Card } from "@/components/ui/Card/Card";
 import { Loader } from "@/components/ui/Loader/Loader";
 import { ProductImage } from "@/components/ui/ProductImage/ProductImage";
 import { useCase } from "@/hooks/useCases";
-import { FAULT_LABEL, STATUS_TONE, attrs, humanize, money, pct, shortHash } from "@/lib/format";
+import { ACTION_LABEL, FAULT_LABEL, STATUS_TONE, attrs, humanize, money, pct, shortHash } from "@/lib/format";
 import styles from "./page.module.css";
 
 const FLAG_LABEL: Record<string, string> = {
@@ -70,6 +70,14 @@ export default function CaseDetailPage() {
           </div>
           <p>{v.reason.summary}</p>
           <p className={styles.reasonRule}>Rule followed: {v.reason.reference}</p>
+          {data.settlement && data.settlement.action !== data.recommended_action && (
+            <p className={styles.reasonOverride}>
+              This was Culpa&apos;s advice. The analyst decided differently:{" "}
+              {data.settlement.action === "contest" ? "the claim was contested and no money moved"
+                : `${ACTION_LABEL[data.settlement.action].toLowerCase()} of ${money(data.settlement.amount, data.currency)}`}
+              . See Settlement.
+            </p>
+          )}
         </section>
       )}
 

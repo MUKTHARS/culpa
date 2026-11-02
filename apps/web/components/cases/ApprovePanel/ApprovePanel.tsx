@@ -22,6 +22,28 @@ function paypalStep(option: Option, detail: CaseDetail): string {
   return dispute ? "PayPal: submit Culpa's evidence to contest the dispute" : "No PayPal dispute to contest: the claim is denied in Culpa";
 }
 
+/** The settlement in plain words: what happened to the money. */
+function outcomeTitle(action: Action, status: string, amount: string | null, detail: CaseDetail): string {
+  const done = status === "succeeded";
+  const failed = status === "failed_final";
+  if (action === "contest") return failed ? "Contest failed" : done ? "Dispute contested" : "Contesting the dispute…";
+  const sum = money(amount, detail.currency);
+  if (failed) return `Refund of ${sum} failed`;
+  if (action === "refund_partial") return done ? `Refunded ${sum} of ${money(detail.amount, detail.currency)}` : `Refunding ${sum}…`;
+  return done ? `Refunded ${sum} in full` : `Refunding ${sum}…`;
+}
+
+function outcomeDetail(action: Action, status: string, simulated: boolean, detail: CaseDetail): string {
+  if (status === "failed_final") return "PayPal rejected the action. See the error below; the case needs another decision.";
+  if (action === "contest") {
+    return detail.paypal_dispute_id
+      ? "No money moved. Culpa's fingerprinted evidence was sent to PayPal to defend the payment."
+      : "No money moved. There was no PayPal dispute to answer, so the buyer's claim was denied in Culpa.";
+  }
+  if (simulated) return "Simulated order: the refund was recorded in Culpa, but no PayPal money moved.";
+  return detail.paypal_dispute_id ? "Sent to PayPal on the buyer's dispute." : "Refunded through PayPal to the buyer's account.";
+}
+
 export function ApprovePanel({ detail, onChange }: { detail: CaseDetail; onChange: () => void }) {
   const recommended = detail.recommended_action;
   const executable = recommended && recommended !== "review" ? (recommended as Option) : null;
@@ -64,6 +86,7 @@ export function ApprovePanel({ detail, onChange }: { detail: CaseDetail; onChang
 
   return (
     <div className={styles.wrap}>
+      {!s && (
       <div className={styles.recommendation}>
         <p className={styles.label}>Culpa recommends</p>
         <p className={styles.action}>{recommended ? ACTION_LABEL[recommended] : "Waiting for analysis"}</p>
@@ -83,15 +106,27 @@ export function ApprovePanel({ detail, onChange }: { detail: CaseDetail; onChang
           </p>
         )}
       </div>
+      )}
 
       {s ? (
         <div className={styles.result}>
+          {/* What actually happened comes first; the recommendation is only context. */}
+          <div className={cx(styles.outcome, s.action === "contest" ? styles.outcomeContest : styles.outcomeRefund)}>
+            <p className={styles.label}>Outcome</p>
+            <p className={styles.action}>{outcomeTitle(s.action, s.status, s.amount, detail)}</p>
+            <p>{outcomeDetail(s.action, s.status, s.simulated, detail)}</p>
+          </div>
           <div className="row">
             <Badge tone={s.status === "succeeded" ? "good" : s.status === "failed_final" ? "bad" : "info"}>{humanize(s.status)}</Badge>
-            <strong>{ACTION_LABEL[s.action]}</strong>
-            {s.amount && <span>{money(s.amount, detail.currency)}</span>}
             {s.simulated && <Badge tone="warn">Simulated: no money moved</Badge>}
           </div>
+          {recommended && recommended !== "review" && (
+            <p className={styles.hint}>
+              {recommended === s.action
+                ? `This follows Culpa's recommendation (${ACTION_LABEL[recommended].toLowerCase()}).`
+                : `Culpa recommended ${ACTION_LABEL[recommended].toLowerCase()}; the analyst chose to ${s.action === "contest" ? "contest the claim" : ACTION_LABEL[s.action].toLowerCase()}.`}
+            </p>
+          )}
           {s.error && <p className="error">{s.error}</p>}
           <dl className={styles.facts}>
             <dt>Approved by</dt>
