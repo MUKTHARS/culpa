@@ -181,6 +181,32 @@ export interface ShopResult {
   product: { id: string; title: string; price: string; attributes: Record<string, string>; image_url: string };
   mandate: { id: string; hash: string; constraints: Record<string, unknown> };
   candidates: number;
+  /** How the search narrowed the store down to the products the agent compared. */
+  search?: SearchStats;
+  /** The products the agent compared, best first. */
+  results?: SearchResult[];
+}
+
+export interface SearchStats {
+  searched: number;
+  other_category: number;
+  over_budget: number;
+  attribute_mismatch: number;
+  matching: number;
+}
+
+export interface SearchResult {
+  id: string;
+  title: string;
+  price: string;
+  category: string;
+  attributes: Record<string, string>;
+  image_url: string;
+  /** Words of the request this product matches. */
+  matched: string[];
+  /** Per required attribute: match, ambiguous (e.g. "9" for "UK 9"), mismatch or missing. */
+  fit: Record<string, "match" | "ambiguous" | "mismatch" | "missing">;
+  chosen: boolean;
 }
 
 export interface SystemStatus {

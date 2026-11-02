@@ -179,3 +179,21 @@ def test_fault_follows_the_cause_not_a_vote():
 
     # Supporting signals alone never decide fault confidently.
     assert score([disputes, judge], [])[2] < 0.8
+
+
+def test_search_matches_the_kind_of_product_not_its_attributes():
+    from engine.agent_policy import rank, relates_to
+    from engine.types import Candidate
+
+    tees = [Candidate(id=f"tee_{c}", title="Everyday Cotton Tee", price="19.00", category="apparel/tops",
+                      attributes={"size": "M", "color": c}) for c in ("White", "Black")]
+    buds = Candidate(id="buds", title="Pocket Wireless Earbuds", price="79.00", category="electronics/audio",
+                     attributes={"color": "White"})
+    socks = Candidate(id="socks", title="Cushion Run Socks", price="18.00", category="apparel/socks",
+                      attributes={"size": "M", "color": "Grey"})
+    catalog = [*tees, buds, socks]
+    for query in ("tshirt", "t-shirt", "tshirts", "white t shirt size M"):
+        assert {c.id for c in rank(query, catalog)} == {"tee_White", "tee_Black"}, query
+    assert rank("white t shirt size M", catalog)[0].id == "tee_White"  # the requested colour ranks first
+    assert not relates_to("white t shirt", buds.title, buds.category, buds.attributes)
+    assert relates_to("something white", buds.title, buds.category, buds.attributes)  # attribute-only request

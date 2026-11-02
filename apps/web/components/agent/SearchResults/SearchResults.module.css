@@ -1,0 +1,269 @@
+.panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: var(--space-5);
+}
+
+.head {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.title {
+  font-size: 17px;
+}
+
+.stats {
+  font-size: 13px;
+  color: var(--ink-3);
+}
+
+.toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+  border-top: 1px solid var(--line);
+  padding-top: var(--space-3);
+}
+
+.sort {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: 13px;
+  color: var(--ink-2);
+}
+
+.sortSelect {
+  font: inherit;
+  color: var(--ink);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  padding: 5px 8px;
+}
+
+.count {
+  font-size: 13px;
+  color: var(--ink-3);
+  display: flex;
+  gap: var(--space-3);
+  align-items: center;
+}
+
+.clear {
+  font: inherit;
+  color: var(--accent);
+  background: none;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.facets {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.facet {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.facetLabel {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--ink-2);
+  min-width: 64px;
+}
+
+.chip {
+  font: inherit;
+  font-size: 12px;
+  color: var(--ink-2);
+  background: var(--surface);
+  border: 1px solid var(--line-strong);
+  border-radius: 999px;
+  padding: 3px 10px;
+  cursor: pointer;
+}
+
+.chip:hover {
+  border-color: var(--accent);
+}
+
+.chip:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
+.chipOn,
+.chipOn:hover {
+  background: var(--pp-navy);
+  border-color: var(--pp-navy);
+  color: #fff;
+}
+
+.empty {
+  font-size: 13px;
+  color: var(--ink-3);
+  padding: var(--space-3) 0;
+}
+
+.list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.item {
+  display: grid;
+  grid-template-columns: 24px 64px 1fr auto;
+  gap: var(--space-3);
+  align-items: start;
+  padding: var(--space-3) 0;
+  border-top: 1px solid var(--line);
+}
+
+.item:first-child {
+  border-top: 0;
+}
+
+.chosen {
+  background: var(--accent-soft);
+  border-radius: var(--radius-sm);
+  padding: var(--space-3);
+  margin: 0 calc(var(--space-3) * -1);
+  border-top-color: transparent;
+}
+
+.chosen + .item {
+  border-top-color: transparent;
+}
+
+.rank {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--ink-3);
+  font-variant-numeric: tabular-nums;
+  padding-top: 2px;
+  text-align: center;
+}
+
+.body {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.titleRow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+
+.name {
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.category {
+  font-size: 12px;
+  color: var(--ink-3);
+}
+
+.attrs {
+  list-style: none;
+  margin: 2px 0 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.attr {
+  font-size: 12px;
+  color: var(--ink-2);
+  background: var(--surface-2);
+  border: 1px solid transparent;
+  border-radius: 999px;
+  padding: 1px 8px;
+}
+
+/* How the attribute meets the buyer's requirement. */
+.match {
+  background: var(--good-soft);
+  color: var(--good);
+}
+
+.ambiguous {
+  background: var(--warn-soft);
+  color: var(--warn);
+}
+
+.mismatch,
+.missing {
+  background: var(--bad-soft);
+  color: var(--bad);
+}
+
+.matched {
+  font-size: 12px;
+  color: var(--ink-3);
+}
+
+.side {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: var(--space-2);
+}
+
+.price {
+  font-weight: 700;
+  font-size: 15px;
+  font-variant-numeric: tabular-nums;
+}
+
+.selected {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--pp-navy);
+}
+
+.footnote {
+  font-size: 12px;
+  color: var(--ink-3);
+}
+
+@media (max-width: 600px) {
+  .panel {
+    padding: var(--space-4);
+  }
+
+  .item {
+    grid-template-columns: 20px 64px 1fr;
+  }
+
+  .side {
+    grid-column: 3;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+}

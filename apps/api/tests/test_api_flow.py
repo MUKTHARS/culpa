@@ -140,3 +140,19 @@ def test_analyst_sets_a_partial_refund_amount_and_note(client, drain):
     audit = client.get(f"/cases/{case['id']}").json()["audit"]
     approved = next(a for a in audit if a["action"] == "settlement.approved")
     assert approved["data"]["note"] == "Goodwill: buyer keeps the shoes."
+
+
+def test_search_results_are_ranked_filtered_and_explained(client):
+    r = client.post("/agent/shop", json={"buyer_id": "buyer_sam", "instruction": "running shoes size 9", "category": "shoes",
+                                         "required_attributes": {"size": "9"}})
+    assert r.status_code == 200, r.text
+    shop = r.json()
+    ids = [x["id"] for x in shop["results"]]
+    assert ids[0] == shop["product"]["id"] and shop["results"][0]["chosen"]
+    assert {"p_stride_uk9", "p_stride_us9"} <= set(ids) and "p_stride_us10" not in ids  # "9" keeps UK 9 and US 9 only
+    assert shop["results"][0]["fit"] == {"size": "ambiguous"}
+    assert shop["search"]["attribute_mismatch"] >= 1 and shop["search"]["matching"] == len(ids)
+
+    exact = client.post("/agent/shop", json={"buyer_id": "buyer_sam", "instruction": "running shoes size US 9",
+                                             "category": "shoes", "required_attributes": {"size": "US 9"}}).json()
+    assert [x["id"] for x in exact["results"]] == ["p_stride_us9"] and exact["product"]["id"] == "p_stride_us9"

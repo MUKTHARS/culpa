@@ -38,12 +38,16 @@ _SYNONYMS = {
     "earphone": {"earbud", "headphone"}, "earbud": {"earphone", "headphone"}, "headphone": {"earphone", "earbud"},
     "headset": {"headphone"}, "sneaker": {"shoe"}, "trainer": {"shoe"}, "coat": {"jacket"}, "shirt": {"tee"},
     "backpack": {"pack"}, "bag": {"pack"}, "pan": {"skillet"}, "blanket": {"throw"},
+    "tshirt": {"tee", "shirt"}, "teeshirt": {"tee", "shirt"}, "jumper": {"sweater"}, "pullover": {"sweater"},
+    "sweatshirt": {"sweater"}, "boot": {"shoe"}, "frying": {"skillet"},
 }
 
 
 def product_terms(text: str) -> set[str]:
-    """Words that can identify a product: no budget words, no bare numbers ("9" alone could be any size)."""
-    terms = {_stem(t) for t in tokens(text) if t not in _NOT_PRODUCT_WORDS and not t.replace(".", "").isdigit()}
+    """Words that can identify a product: no budget words, no bare numbers ("9" alone could be any size), and no
+    single letters (the "t" of "t shirt", the size "M")."""
+    terms = {_stem(t) for t in tokens(text)
+             if t not in _NOT_PRODUCT_WORDS and not t.replace(".", "").isdigit() and len(t) > 1}
     for t in list(terms):
         terms |= _SYNONYMS.get(t, set())
     terms |= {name for name, same in _SYNONYMS.items() if same & terms}  # "pack" also answers to "backpack"
@@ -51,14 +55,18 @@ def product_terms(text: str) -> set[str]:
 
 
 def relates_to(instruction: str, title: str, category: str, attributes: dict[str, str]) -> bool:
-    """Does the item share at least one product word with the instruction ("shirt" vs socks: no)?
+    """Is the item the kind of thing asked for ("shirt" vs socks: no)?
 
+    The kind comes from the product's name and category; attributes say which variant, so "white t shirt" never
+    matches white earbuds. Only a request made of attribute words alone ("something black") is matched on them.
     An instruction with no product words at all ("under $50") constrains nothing, so any item relates to it.
     """
     wanted = product_terms(instruction)
     if not wanted:
         return True
-    return bool(wanted & product_terms(" ".join([title, category, *attributes.values()])))
+    if wanted & product_terms(f"{title} {category}"):
+        return True
+    return wanted <= product_terms(" ".join(attributes.values()))
 
 
 def parse_budget(instruction: str) -> Decimal | None:
@@ -83,19 +91,28 @@ def _words(c: Candidate) -> set[str]:
     return set(tokens(" ".join([c.title, c.category, *c.attributes.values()])))
 
 
+def matched_terms(instruction: str, c: Candidate) -> list[str]:
+    """The words of the request a product matches, for showing why it ranked where it did."""
+    return sorted(set(tokens(instruction)) & _words(c))
+
+
+def rank(instruction: str, candidates: list[Candidate]) -> list[Candidate]:
+    """Search results in the agent's own order: only items of the kind asked for, within any budget in the text;
+    closest product name first ("headphones": headphones before earbuds), then exact word matches, then price."""
+    want = set(tokens(instruction))
+    asked = product_terms(instruction)
+    pool = [c for c in _affordable(instruction, candidates) if relates_to(instruction, c.title, c.category, c.attributes)]
+    return sorted(pool, key=lambda c: (-len(asked & product_terms(c.title)), -len(want & _words(c)), Decimal(c.price), c.id))
+
+
 def attribute_aware(instruction: str, candidates: list[Candidate]) -> tuple[str, str]:
     if not candidates:
         raise ValueError("no candidates")
-    want = set(tokens(instruction))
-    # Only items that are the kind of thing asked for compete: "headphones" never ends up as the cheapest speaker.
-    pool = [c for c in _affordable(instruction, candidates) if relates_to(instruction, c.title, c.category, c.attributes)]
-    if not pool:
+    ranked = rank(instruction, candidates)
+    if not ranked:
         raise NoMatch(f"nothing in the catalog matches {instruction!r}")
-    asked = product_terms(instruction)
-    # Closest product name first ("headphones": headphones over earbuds), then exact word matches, then price.
-    ranked = sorted(pool, key=lambda c: (-len(asked & product_terms(c.title)), -len(want & _words(c)), Decimal(c.price), c.id))
     best = ranked[0]
-    matched = sorted(want & _words(best))
+    matched = matched_terms(instruction, best)
     return best.id, f"Best match on {', '.join(matched) or 'no shared terms'}; cheapest among equal matches."
 
 

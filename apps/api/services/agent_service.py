@@ -13,12 +13,13 @@ from core.errors import CulpaError, NotFound, PayPalError
 from core.ids import iso, new_id, utcnow
 from core.logging import get_logger
 from core.security import idempotency_key, sha256_hex, sign
-from engine.agent_policy import NoMatch, attribute_aware
+from engine.agent_policy import NoMatch, attribute_aware, matched_terms, rank
+from engine.attributes import fit
 from engine.dsa import Trie
 from engine.llm import LLMUnavailable
 from engine.types import Candidate
 from models import AgentTrace, ListingSnapshot, Mandate, Order, Product
-from services import audit_service, evidence_service
+from services import audit_service, evidence_service, store_service
 from services.llm_service import get_llm
 from services.paypal import orders as pp_orders
 from services.paypal.client import get_paypal
@@ -27,20 +28,54 @@ from services.paypal.toolkit import create_order_via_toolkit
 log = get_logger(__name__)
 
 
-def _candidates(db: Session, category: str | None, max_amount: Decimal | None) -> list[Candidate]:
+def _candidates(db: Session, category: str | None, max_amount: Decimal | None,
+                required: dict[str, str]) -> tuple[list[Candidate], dict[str, int]]:
+    """Products that meet the mandate's hard limits, and how many were left out for each reason.
+
+    A required attribute keeps exact and ambiguous matches ("9" keeps UK 9 and US 9) and drops clear mismatches
+    (US 10). The agent's recorded candidates are this list, so a replay sees exactly what the agent saw.
+    """
     trie = None
     if category:
         trie = Trie()
         trie.insert(category)
-    out = []
+    out: list[Candidate] = []
+    stats = {"searched": 0, "other_category": 0, "over_budget": 0, "attribute_mismatch": 0}
     for p in db.execute(select(Product).order_by(Product.id)).scalars():
+        stats["searched"] += 1
         if trie and not trie.allows(p.category):
+            stats["other_category"] += 1
             continue
         if max_amount is not None and Decimal(p.price) > max_amount:
+            stats["over_budget"] += 1
+            continue
+        if required and any(status in ("mismatch", "missing") for status in fit(required, p.attributes).values()):
+            stats["attribute_mismatch"] += 1
             continue
         out.append(Candidate(id=p.id, title=p.title, price=p.price, category=p.category, merchant_id=p.merchant_id,
                              attributes=dict(p.attributes)))
-    return out
+    return out, stats
+
+
+def _search_results(db: Session, instruction: str, candidates: list[Candidate], required: dict[str, str],
+                    chosen_id: str, limit: int = 24) -> list[dict]:
+    """Every product that matches, best first, each with why it matches.
+
+    The ranking is the agent's own. A pick the keyword ranking missed (the model understood a word the store doesn't
+    use) still comes first, followed by the rest of its category, so the buyer always sees the alternatives.
+    """
+    ranked = rank(instruction, candidates)
+    ranked_ids = {c.id for c in ranked}
+    chosen = next((c for c in candidates if c.id == chosen_id), None)
+    if chosen is not None and chosen_id not in ranked_ids:
+        same_kind = [c for c in candidates if c.category == chosen.category and c.id != chosen_id and c.id not in ranked_ids]
+        ranked = [chosen, *sorted(same_kind, key=lambda c: (Decimal(c.price), c.id)), *ranked]
+    shown = ranked[:limit]
+    images = {p.id: p.image_url for p in db.execute(select(Product).where(Product.id.in_([c.id for c in shown]))).scalars()}
+    return [{"id": c.id, "title": c.title, "price": c.price, "category": c.category, "attributes": c.attributes,
+             "image_url": images.get(c.id) or store_service.image_url_for(c.id), "matched": matched_terms(instruction, c),
+             "fit": fit(required, c.attributes) if required else {}, "chosen": c.id == chosen_id}
+            for c in shown]
 
 
 def shop(db: Session, *, buyer_id: str, instruction: str, max_amount: str | None, category: str | None,
@@ -75,9 +110,10 @@ def shop(db: Session, *, buyer_id: str, instruction: str, max_amount: str | None
     db.add(mandate)
     db.flush()  # no ORM relationships: flush in foreign-key order explicitly
 
-    candidates = _candidates(db, category, cap)
+    candidates, search = _candidates(db, category, cap, constraints["required_attributes"])
     if not candidates:
-        raise CulpaError("no product in the store fits the mandate's category and budget")
+        raise CulpaError("No product in the store fits the mandate's category, budget and required attributes. "
+                         "Loosen a limit and try again.")
 
     policy, model = "attribute_aware", ""
     llm = get_llm()
@@ -153,6 +189,8 @@ def shop(db: Session, *, buyer_id: str, instruction: str, max_amount: str | None
                     "attributes": product.attributes, "image_url": product.image_url},
         "mandate": {"id": mandate.id, "hash": mandate.hash, "constraints": constraints},
         "candidates": len(candidates),
+        "search": {**search, "matching": len(candidates)},
+        "results": _search_results(db, instruction, candidates, constraints["required_attributes"], chosen_id),
     }
 
 
