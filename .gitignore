@@ -16,6 +16,7 @@ __pycache__/
 # Node / Next
 node_modules/
 .next/
+.next-build/
 out/
 *.tsbuildinfo
 
@@ -24,3 +25,4 @@ out/
 Thumbs.db
 .vscode/
 .idea/
+demo-recording/

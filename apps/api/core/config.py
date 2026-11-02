@@ -46,11 +46,11 @@ class Settings(BaseSettings):
     analyst_username: str = ""
     analyst_password: str = ""
     session_ttl_hours: int = 12
-    web_origin: str = "http://localhost:3000,http://127.0.0.1:3000"
+    web_origin: str = "http://127.0.0.1:3000,http://localhost:3000"
 
     # URLs used to build PayPal return links
-    public_api_url: str = "http://localhost:8000"
-    public_web_url: str = "http://localhost:3000"
+    public_api_url: str = "http://127.0.0.1:8000"
+    public_web_url: str = "http://127.0.0.1:3000"
 
     # Settlement policy
     auto_settle: bool = False

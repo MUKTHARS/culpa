@@ -1,5 +1,5 @@
 # Full local stack: Postgres + Redis + API + worker + web.
-#   docker compose up -d --build        -> web http://localhost:3000, API http://localhost:8000
+#   docker compose up -d --build        -> web http://127.0.0.1:3000, API http://127.0.0.1:8000
 #   docker compose up -d redis postgres -> only the data services, run API/web from source
 #   docker compose logs -f api          -> follow one service (containers are named culpa-<service>)
 # Secrets come from apps/api/.env (PayPal, Gemini). Compose overrides the storage URLs.
@@ -10,8 +10,8 @@ x-api-env: &api-env
   DATABASE_URL: postgresql://culpa:culpa@postgres:5432/culpa
   REDIS_URL: redis://redis:6379/0
   QUEUE_MODE: redis
-  PUBLIC_API_URL: http://localhost:8000
-  PUBLIC_WEB_URL: http://localhost:3000
+  PUBLIC_API_URL: http://127.0.0.1:8000
+  PUBLIC_WEB_URL: http://127.0.0.1:3000
 
 services:
   postgres:
@@ -65,7 +65,7 @@ services:
     environment:
       <<: *api-env
       RUN_WORKERS_IN_PROCESS: "false"
-      WEB_ORIGIN: http://localhost:3000
+      WEB_ORIGIN: http://127.0.0.1:3000,http://localhost:3000
     ports:
       - "8000:8000"
     networks: [culpa]
@@ -99,7 +99,7 @@ services:
       context: .
       dockerfile: apps/web/Dockerfile
       args:
-        NEXT_PUBLIC_API_URL: http://localhost:8000
+        NEXT_PUBLIC_API_URL: http://127.0.0.1:8000
     image: culpa-web:local
     container_name: culpa-web
     hostname: culpa-web

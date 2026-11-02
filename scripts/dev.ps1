@@ -20,5 +20,5 @@ Start-Process powershell -ArgumentList "-NoExit", "-Command", @"
 Set-Location '$root\apps\web'; pnpm dev
 "@
 
-Write-Host "API  http://localhost:8000/docs"
-Write-Host "Web  http://localhost:3000"
+Write-Host "API  http://127.0.0.1:8000/docs"
+Write-Host "Web  http://127.0.0.1:3000"

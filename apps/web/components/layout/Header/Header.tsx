@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { ProductTour } from "@/components/layout/ProductTour/ProductTour";
 import { Badge } from "@/components/ui/Badge/Badge";
 import { ROUTES } from "@/constants/routes";
 import { useSystemStatus } from "@/hooks/useSystem";
@@ -36,6 +37,7 @@ export function Header() {
           ))}
         </nav>
         <div className={styles.status}>
+          <ProductTour />
           {error ? (
             <Badge tone="bad">API offline</Badge>
           ) : status ? (

@@ -1,5 +1,6 @@
-# Render Blueprint: API (with in-process worker), web, Postgres and Key Value (Redis).
-# New > Blueprint > pick this repo. Fill the `sync: false` secrets in the dashboard.
+# Render Blueprint: API (with in-process worker), web, Postgres and Key Value (Redis), all on free plans.
+# New > Blueprint > pick this repo. Fill the `sync: false` values in the dashboard (see START_HERE.md and the
+# deployment steps). Free web services sleep after 15 idle minutes; a free Postgres database expires after 30 days.
 # For heavier load, add a separate `type: worker` service with dockerCommand `python -m workers.runner`
 # and set RUN_WORKERS_IN_PROCESS=false on the API.
 
@@ -7,6 +8,7 @@ services:
   - type: web
     name: culpa-api
     runtime: docker
+    plan: free
     dockerfilePath: ./apps/api/Dockerfile
     dockerContext: .
     healthCheckPath: /healthz
@@ -36,6 +38,10 @@ services:
         sync: false
       - key: GEMINI_API_KEY
         sync: false
+      - key: LLM_JUDGE_MODEL
+        value: gemini-3.5-flash
+      - key: LLM_FAST_MODEL
+        value: gemini-3.5-flash-lite
       - key: MANDATE_SIGNING_SECRET
         generateValue: true
       - key: ANALYST_USERNAME
@@ -52,6 +58,7 @@ services:
   - type: web
     name: culpa-web
     runtime: docker
+    plan: free
     dockerfilePath: ./apps/web/Dockerfile
     dockerContext: .
     envVars:
@@ -60,6 +67,7 @@ services:
 
   - type: keyvalue
     name: culpa-redis
+    plan: free
     maxmemoryPolicy: volatile-lru
     ipAllowList: []
 
@@ -67,3 +75,4 @@ databases:
   - name: culpa-db
     databaseName: culpa
     user: culpa
+    plan: free
