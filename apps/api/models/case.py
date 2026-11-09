@@ -6,8 +6,8 @@ from sqlalchemy.orm import Mapped, mapped_column
 from core.database import Base
 from core.ids import utcnow
 
-# Case lifecycle: open -> analyzing -> awaiting_approval | needs_review -> settling -> settled | settle_failed
-CASE_STATUSES = ("open", "analyzing", "awaiting_approval", "needs_review", "settling", "settled", "settle_failed")
+# Case lifecycle: open -> analyzing -> awaiting_approval | needs_review -> settling -> settled | offer_sent | settle_failed
+CASE_STATUSES = ("open", "analyzing", "awaiting_approval", "needs_review", "settling", "settled", "offer_sent", "settle_failed")
 
 # Settlement state machine. No other transitions are allowed.
 SETTLEMENT_TRANSITIONS = {

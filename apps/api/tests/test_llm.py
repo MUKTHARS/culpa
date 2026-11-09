@@ -89,3 +89,23 @@ def test_blocked_and_out_of_catalog_answers_are_unavailable():
     llm, _ = _llm(_response(json.dumps({"product_id": "not-in-catalog", "reasoning": "x"})))
     with pytest.raises(LLMUnavailable, match="outside the catalog"):
         llm.choose_product("earphones", CATALOG)
+
+
+def test_model_can_say_nothing_in_the_catalog_fits():
+    from engine.agent_policy import NoMatch
+
+    llm, _ = _llm(_response(json.dumps({"product_id": "NONE", "reasoning": "No saddles here."})))
+    with pytest.raises(NoMatch):
+        llm.choose_product("unicorn saddle", CATALOG, use_cache=False)
+
+
+def test_a_model_that_hangs_is_abandoned_at_the_deadline():
+    import time
+
+    llm, fake = _llm(_response("{}"))
+    llm.timeout_s = 0.05
+    fake.generate_content = lambda **_: time.sleep(1)
+    start = time.monotonic()
+    with pytest.raises(LLMUnavailable, match="did not answer"):
+        llm.choose_product("earphones", CATALOG, use_cache=False)
+    assert time.monotonic() - start < 0.5

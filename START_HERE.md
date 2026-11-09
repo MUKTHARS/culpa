@@ -12,7 +12,7 @@ Open the dispute console at /login, or click Analyst login in the top bar. Sessi
 
 PayPal sandbox buyer (for approving carts)
     Email:    sb-3khub53626478@personal.example.com
-    Password: ^x.3L25$.
+    Password: ^x.3L25$
 When the buyer agent sends you to PayPal, log in with this account to approve the cart. This is a PayPal sandbox test account: it only holds play money and cannot make real payments.
 
 The buyer agent and the merchant pages need no login.

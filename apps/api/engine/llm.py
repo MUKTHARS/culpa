@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import json
 import time
+from concurrent.futures import ThreadPoolExecutor
 from typing import Protocol
 
 import httpx
@@ -20,9 +21,12 @@ from google.genai import types
 
 from core.resilience import CircuitBreaker, CircuitOpen
 from core.security import sha256_hex
+from engine.agent_policy import NoMatch
 from engine.types import Candidate
 
-PROMPT_VERSION = "v1"
+PROMPT_VERSION = "v2"
+NO_MATCH = "NONE"  # the model's answer when nothing in the catalog is what was asked for
+_CALLS = ThreadPoolExecutor(max_workers=8, thread_name_prefix="gemini")
 ACCOUNT_ERROR_HOLD_S = 300
 
 
@@ -85,6 +89,7 @@ class GeminiLLM:
         # Two attempts with backoff ride out Gemini's short "high demand" (503) and per-minute limit (429) spikes.
         self.client = client or genai.Client(api_key=api_key, http_options=types.HttpOptions(
             timeout=int(timeout_s * 1000), retry_options=types.HttpRetryOptions(attempts=2)))
+        self.timeout_s = timeout_s
         self.judge_model = judge_model
         self.fast_model = fast_model
         self.temperature = temperature
@@ -134,7 +139,11 @@ class GeminiLLM:
         except CircuitOpen as exc:
             raise LLMUnavailable(str(exc)) from exc
         try:
-            response = self._generate(model, prompt, schema, max_tokens)
+            # The SDK's timeout is per read and it pauses between retries, so the whole call needs its own deadline.
+            response = _CALLS.submit(self._generate, model, prompt, schema, max_tokens).result(timeout=self.timeout_s)
+        except TimeoutError as exc:
+            self.breaker.record_failure()
+            raise LLMUnavailable(f"Gemini did not answer within {self.timeout_s:.0f} s") from exc
         except genai_errors.APIError as exc:
             self.breaker.record_failure()
             message = str(exc.message or "")
@@ -182,11 +191,14 @@ class GeminiLLM:
         catalog = [{"id": c.id, "title": c.title, "price": c.price, "attributes": c.attributes} for c in candidates]
         prompt = (
             "A buyer asked their shopping agent for the following. Pick the single best product from the catalog. "
-            "Respect any budget. If the instruction is ambiguous, pick the most literal match.\n"
+            "Respect any budget. If the instruction is ambiguous, pick the most literal match. If no product is the "
+            f"kind of thing the buyer asked for, answer with product_id {NO_MATCH}; never substitute something else.\n"
             f"<instruction>{instruction}</instruction>\n<catalog>{json.dumps(catalog)}</catalog>"
         )
         data = self._memoized("choose", self.fast_model, {"instruction": instruction, "catalog": catalog},
                               prompt, _CHOOSE_SCHEMA, 2048, use_cache)
+        if data.get("product_id") == NO_MATCH:
+            raise NoMatch(f"nothing in the catalog matches {instruction!r}")
         ids = {c.id for c in candidates}
         if data.get("product_id") not in ids:
             raise LLMUnavailable("model chose a product outside the catalog")

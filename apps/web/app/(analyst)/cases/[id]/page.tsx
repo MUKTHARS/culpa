@@ -17,6 +17,8 @@ import styles from "./page.module.css";
 
 const FLAG_LABEL: Record<string, string> = {
   llm_unavailable: "Rule-based (AI unavailable)",
+  already_settled: "Held: order already settled",
+  claim_contradicts_delivery: "Held: claim contradicts delivery record",
   decided_by_rules: "Decided by mandate rules",
   replay_unavailable: "Replay unavailable",
   nondeterministic: "Agent not reproducible",

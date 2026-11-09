@@ -12,7 +12,7 @@ from sqlalchemy.orm import Session
 from core.cache import bump_cases_generation, cache_aside, cases_generation
 from core.config import get_settings
 from core.database import lock_key
-from core.errors import CulpaError, InvalidState, NotFound
+from core.errors import Conflict, CulpaError, InvalidState, NotFound
 from core.ids import as_utc, iso, new_id, utcnow
 from core.logging import get_logger
 from core.security import idempotency_key, verify_signature
@@ -56,6 +56,10 @@ def create_simulated(db: Session, *, order_id: str, reason: str, claim_text: str
         raise InvalidState("only captured orders can be disputed")
     if reason not in REASONS:
         raise CulpaError(f"reason must be one of {', '.join(REASONS)}")
+    # Like PayPal: one dispute per payment. A second case could only repeat the first one's refund.
+    lock_key(db, f"order:{order.id}")
+    if db.execute(select(Case.id).where(Case.order_id == order.id).limit(1)).first():
+        raise Conflict("this order already has a dispute; open the existing case instead")
     case = Case(id=new_id("case"), merchant_id=order.merchant_id, order_id=order.id, source="simulator", reason=reason,
                 claim_text=claim_text.strip(), buyer_id=order.buyer_id, amount=order.amount, currency=order.currency,
                 status="open")
@@ -155,7 +159,7 @@ def analyze(db: Session, case_id: str) -> Case:
     case = db.get(Case, case_id)
     if case is None:
         raise NotFound(f"case {case_id} not found")
-    if case.status in ("settling", "settled"):
+    if case.status in ("settling", "settled", "offer_sent"):
         return case
     s = get_settings()
     case.status = "analyzing"
@@ -188,8 +192,6 @@ def analyze(db: Session, case_id: str) -> Case:
     audit_service.append(db, actor="engine", action="case.analyzed", case_id=case.id,
                          data={"fault_class": verdict.fault_class, "split": verdict.split,
                                "confidence": verdict.confidence, "action": verdict.action, "flags": verdict.flags})
-    if s.auto_settle and verdict.action != "review":
-        approve(db, case.id, actor="auto-policy", action=None)
     return case
 
 
@@ -243,7 +245,7 @@ def reanalyze(db: Session, case_id: str, actor: str) -> Case:
     case = db.get(Case, case_id)
     if case is None:
         raise NotFound(f"case {case_id} not found")
-    if case.status in ("settling", "settled"):
+    if case.status in ("settling", "settled", "offer_sent"):
         raise InvalidState("a settled case cannot be re-analyzed")
     case.status = "open"
     _touch(case)
@@ -252,13 +254,62 @@ def reanalyze(db: Session, case_id: str, actor: str) -> Case:
     return case
 
 
-def case_row(c: Case) -> dict:
+def _already_refunded(st: Settlement | None) -> bool:
+    """PayPal or our pre-check found the payment was refunded in full before this settlement: nothing is owed."""
+    return st is not None and st.status == "failed_final" and any(
+        marker in (st.error or "") for marker in ("CAPTURE_FULLY_REFUNDED", "already refunded in full"))
+
+
+def _plain_error(st: Settlement | None) -> str | None:
+    """The analyst-facing explanation. The raw PayPal text stays on the settlement and in the audit log."""
+    if st is None or not st.error:
+        return None
+    if _already_refunded(st):
+        return None  # not a failure: the outcome panel explains it
+    if "REFUND_NOT_ALLOWED" in st.error:
+        return ("PayPal refused this refund (REFUND_NOT_ALLOWED) even though the payment is intact. No money moved. "
+                "Refund it from the PayPal business account, or raise it with PayPal support.")
+    return st.error
+
+
+def _resolution_strategy(c: Case, st: Settlement | None) -> str | None:
+    """Who settles (or settled) this case: 'autonomous', 'human', or None while the verdict is pending."""
+    if st is not None:
+        return "autonomous" if st.approved_by == "auto-policy" else "human"
+    if c.confidence is None:
+        return None
+    if c.status == "needs_review":
+        return "human"
+    settings = get_settings()
+    return "autonomous" if settings.auto_settle and c.confidence >= 0.8 and c.recommended_action != "review" else "human"
+
+
+def _paypal_result(c: Case, st: Settlement | None) -> str | None:
+    if st is None:
+        return None
+    if _already_refunded(st):
+        return "already_refunded"
+    if c.status == "settle_failed" or st.status == "failed_final":
+        return "failed"
+    if st.status == "failed_retryable":
+        return "retrying"
+    if st.status != "succeeded":
+        return "in_progress"
+    if st.simulated:
+        return "simulated"
+    return "offer_sent" if c.status == "offer_sent" else "success"
+
+
+def case_row(c: Case, settlement: Settlement | None = None) -> dict:
     return {
-        "id": c.id, "source": c.source, "status": c.status, "reason": c.reason, "amount": c.amount,
+        "id": c.id, "source": c.source, "status": "already_refunded" if _already_refunded(settlement) else c.status,
+        "reason": c.reason, "amount": c.amount,
         "currency": c.currency, "buyer_id": c.buyer_id, "order_id": c.order_id, "paypal_dispute_id": c.paypal_dispute_id,
         "fault_class": c.fault_class, "fault_name": c.fault_name, "split": c.split, "confidence": c.confidence,
         "recommended_action": c.recommended_action, "refund_amount": c.refund_amount, "flags": c.flags or [],
         "reason_title": ((c.verdict or {}).get("reason") or {}).get("title"),
+        "resolution_strategy": _resolution_strategy(c, settlement), "paypal_result": _paypal_result(c, settlement),
+        "paypal_error": _plain_error(settlement),
         "created_at": iso(c.created_at), "updated_at": iso(c.updated_at),
     }
 
@@ -270,7 +321,10 @@ def list_cases(db: Session, status: str | None = None, limit: int = 200) -> list
         stmt = select(Case).order_by(Case.created_at.desc()).limit(limit)
         if status:
             stmt = stmt.where(Case.status == status)
-        return [case_row(c) for c in db.execute(stmt).scalars()]
+        cases = list(db.execute(stmt).scalars())
+        settlements = {st.case_id: st for st in db.execute(
+            select(Settlement).where(Settlement.case_id.in_([c.id for c in cases]))).scalars()}
+        return [case_row(c, settlements.get(c.id)) for c in cases]
 
     return cache_aside(key, 30, load)
 
@@ -302,7 +356,7 @@ def case_detail(db: Session, case_id: str) -> dict:
     settlement_dict = None
     if settlement is not None:
         settlement_dict = {"id": settlement.id, "action": settlement.action, "status": settlement.status,
-                           "amount": settlement.amount, "simulated": settlement.simulated, "error": settlement.error,
+                           "amount": settlement.amount, "simulated": settlement.simulated, "error": _plain_error(settlement),
                            "attempts": settlement.attempts, "approved_by": settlement.approved_by,
                            "idempotency_key": settlement.idempotency_key, "paypal_response": settlement.paypal_response,
                            "updated_at": iso(settlement.updated_at)}
@@ -310,7 +364,7 @@ def case_detail(db: Session, case_id: str) -> dict:
         if settlement.status in ("succeeded", "failed_final"):
             settlement_events.append((iso(settlement.updated_at), f"Settlement {settlement.status}"))
     return {
-        **case_row(case),
+        **case_row(case, settlement),
         "claim_text": case.claim_text,
         "error": case.error,
         "liability": case.liability,

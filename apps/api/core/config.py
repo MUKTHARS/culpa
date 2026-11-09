@@ -35,7 +35,8 @@ class Settings(BaseSettings):
     gemini_api_key: str = ""
     llm_judge_model: str = "gemini-3.5-flash"
     llm_fast_model: str = "gemini-3.5-flash-lite"
-    llm_timeout_s: float = 60.0
+    # A slow model must not freeze checkout or a dispute: past this the engine falls back to its rule-based checks.
+    llm_timeout_s: float = 15.0
     # Fixed sampling temperature for repeatable answers.
     llm_temperature: float = 0.0
 

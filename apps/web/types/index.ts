@@ -89,6 +89,8 @@ export interface Order {
   product_id: string;
   product_title: string;
   product_image_url: string;
+  /** The dispute already opened on this order, if any. */
+  case_id: string | null;
   snapshot_attributes: Record<string, string>;
   current_attributes: Record<string, string>;
   evidence: EvidenceFingerprint | null;
@@ -121,6 +123,9 @@ export interface CaseRow {
   flags: string[];
   /** Short plain-language reason for the verdict ("The item was not delivered"). */
   reason_title?: string | null;
+  resolution_strategy: "autonomous" | "human" | null;
+  paypal_result: "success" | "already_refunded" | "offer_sent" | "simulated" | "in_progress" | "retrying" | "failed" | null;
+  paypal_error: string | null;
   created_at: string;
   updated_at: string;
 }

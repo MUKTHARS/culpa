@@ -1,9 +1,11 @@
 "use client";
 
-import { AllCommunityModule, ModuleRegistry, themeQuartz, type ColDef } from "ag-grid-community";
+import { AllCommunityModule, ModuleRegistry, themeQuartz, type ColDef, type ICellRendererParams } from "ag-grid-community";
 import { AgGridReact } from "ag-grid-react";
 import { useRouter } from "next/navigation";
 import { useMemo } from "react";
+import { PayPalResult } from "@/components/cases/PayPalResult/PayPalResult";
+import { ResolutionPill } from "@/components/cases/ResolutionPill/ResolutionPill";
 import { ROUTES } from "@/constants/routes";
 import { ACTION_LABEL, FAULT_LABEL, humanize, money, pct, when } from "@/lib/format";
 import type { CaseRow } from "@/types";
@@ -35,6 +37,20 @@ export function CaseGrid({ rows }: { rows: CaseRow[] }) {
         minWidth: 210,
       },
       { field: "reason_title", headerName: "Why", flex: 1, minWidth: 220, valueFormatter: (p) => p.value || "—" },
+      {
+        field: "resolution_strategy",
+        headerName: "Resolution Strategy",
+        width: 260,
+        cellRenderer: (p: ICellRendererParams<CaseRow>) => <ResolutionPill strategy={p.data?.resolution_strategy ?? null} />,
+      },
+      {
+        field: "paypal_result",
+        headerName: "PayPal Result",
+        width: 210,
+        cellRenderer: (p: ICellRendererParams<CaseRow>) => (
+          <PayPalResult result={p.data?.paypal_result ?? null} error={p.data?.paypal_error} />
+        ),
+      },
       { field: "confidence", headerName: "Confidence", valueFormatter: (p) => pct(p.value), width: 120 },
       {
         field: "recommended_action",

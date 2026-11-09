@@ -30,6 +30,8 @@ services:
         value: "true"
       - key: PAYPAL_ENV
         value: sandbox
+      - key: AUTO_SETTLE
+        value: "true"
       - key: PAYPAL_CLIENT_ID
         sync: false
       - key: PAYPAL_CLIENT_SECRET

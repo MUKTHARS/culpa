@@ -29,6 +29,8 @@ export const STATUS_TONE: Record<string, "neutral" | "info" | "good" | "warn" | 
   needs_review: "warn",
   settling: "info",
   settled: "good",
+  offer_sent: "info",
+  already_refunded: "good",
   settle_failed: "bad",
 };
 

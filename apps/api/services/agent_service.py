@@ -18,7 +18,7 @@ from engine.attributes import fit
 from engine.dsa import Trie
 from engine.llm import LLMUnavailable
 from engine.types import Candidate
-from models import AgentTrace, ListingSnapshot, Mandate, Order, Product
+from models import AgentTrace, Case, ListingSnapshot, Mandate, Order, Product
 from services import audit_service, evidence_service, store_service
 from services.llm_service import get_llm
 from services.paypal import orders as pp_orders
@@ -122,7 +122,7 @@ def shop(db: Session, *, buyer_id: str, instruction: str, max_amount: str | None
             try:
                 chosen_id, reasoning = llm.choose_product(instruction, candidates)
                 policy, model = "llm", llm.fast_model
-            except LLMUnavailable as exc:
+            except (LLMUnavailable, NoMatch) as exc:  # the model saying "nothing fits" is only final if the search agrees
                 log.warning("agent_llm_unavailable_fallback", error=str(exc))
                 chosen_id, reasoning = attribute_aware(instruction, candidates)
         else:
@@ -218,7 +218,7 @@ def capture(db: Session, paypal_order_id: str) -> dict:
     return order_dict(db, order)
 
 
-def order_dict(db: Session, order: Order) -> dict:
+def order_dict(db: Session, order: Order, case_id: str | None = None) -> dict:
     product = db.get(Product, order.product_id)
     snapshot = db.get(ListingSnapshot, order.snapshot_id)
     return {
@@ -232,10 +232,15 @@ def order_dict(db: Session, order: Order) -> dict:
         "evidence": order.evidence, "evidence_root": order.evidence_root,
         "created_at": iso(order.created_at), "approved_at": iso(order.approved_at), "shipped_at": iso(order.shipped_at),
         "delivered": order.delivered, "delivered_attributes": order.delivered_attributes,
-        "tracking_number": order.tracking_number, "approve_url": order.approve_url,
+        "tracking_number": order.tracking_number, "approve_url": order.approve_url, "case_id": case_id,
     }
 
 
 def list_orders(db: Session, limit: int = 200) -> list[dict]:
     rows = db.execute(select(Order).order_by(Order.created_at.desc()).limit(limit)).scalars()
-    return [order_dict(db, o) for o in rows]
+    orders = list(rows)
+    cases: dict[str, str] = {}
+    for order_id, case_id in db.execute(select(Case.order_id, Case.id).where(Case.order_id.in_([o.id for o in orders]))
+                                        .order_by(Case.created_at)):
+        cases[order_id] = case_id  # the latest case, for orders disputed before the one-case rule
+    return [order_dict(db, o, cases.get(o.id)) for o in orders]

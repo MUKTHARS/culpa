@@ -7,6 +7,7 @@ from collections.abc import Callable
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
+from core.cache import bump_cases_generation
 from core.errors import PayPalError
 from core.logging import get_logger
 from models import WebhookEvent
@@ -32,12 +33,25 @@ def dispute_received(db: Session, payload: dict) -> None:
 
 
 def case_analyze(db: Session, payload: dict) -> None:
-    case_service.analyze(db, payload["case_id"])
+    case = case_service.analyze(db, payload["case_id"])
+    # Same transaction as the verdict: the settlement job is committed with it or not at all.
+    settlement_service.execute_autonomous_paypal_resolution(db, case)
+    db.commit()
+    bump_cases_generation()  # after the commit, so the grid can't cache the old state under the new generation
 
 
 def settlement_requested(db: Session, payload: dict) -> None:
     settlement_service.execute(db, payload["settlement_id"])
 
+
+def settlement_dead_lettered(db: Session, payload: dict, error: str) -> None:
+    settlement_service.retries_exhausted(db, payload["settlement_id"], error)
+
+
+# Run in the same transaction that dead-letters the job.
+ON_DEAD_LETTER: dict[str, Callable[[Session, dict, str], None]] = {
+    "settlement.requested": settlement_dead_lettered,
+}
 
 HANDLERS: dict[str, Callable[[Session, dict], None]] = {
     "dispute.received": dispute_received,

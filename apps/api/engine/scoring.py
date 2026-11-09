@@ -40,6 +40,9 @@ def score(evidence: list[Evidence], flags: list[str]) -> tuple[str | None, dict[
         return None, dict.fromkeys(PARTIES, 0.0), 0.0
 
     causes = [e for e in faults if e.primary]
+    if not causes and any(f in flags for f in ("needs_evidence", "processing_dispute")):
+        # The records cannot prove this kind of claim, so a side signal must not read as blame.
+        return None, dict.fromkeys(PARTIES, 0.0), 0.0
     if causes:
         top = next(c for c in PRECEDENCE if any(e.fault_class == c for e in causes))
         winning = [e for e in causes if e.fault_class == top]

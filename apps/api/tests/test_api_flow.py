@@ -156,3 +156,20 @@ def test_search_results_are_ranked_filtered_and_explained(client):
     exact = client.post("/agent/shop", json={"buyer_id": "buyer_sam", "instruction": "running shoes size US 9",
                                              "category": "shoes", "required_attributes": {"size": "US 9"}}).json()
     assert [x["id"] for x in exact["results"]] == ["p_stride_us9"] and exact["product"]["id"] == "p_stride_us9"
+
+
+def test_agent_only_gives_up_when_the_store_search_agrees(client, monkeypatch):
+    from engine.agent_policy import NoMatch
+    from services import agent_service
+
+    class SaysNothingFits:
+        fast_model = "fake"
+
+        def choose_product(self, *_, **__):
+            raise NoMatch("nothing")
+
+    monkeypatch.setattr(agent_service, "get_llm", lambda: SaysNothingFits())
+    found = client.post("/agent/shop", json={"buyer_id": "b_nm", "instruction": "running shoes", "required_attributes": {}})
+    assert found.status_code == 200 and found.json()["product"]["id"]
+    missing = client.post("/agent/shop", json={"buyer_id": "b_nm", "instruction": "unicorn saddle", "required_attributes": {}})
+    assert missing.status_code == 400 and "found nothing" in missing.json()["detail"]

@@ -1,7 +1,9 @@
 "use client";
 
 import { Fragment, useCallback, useState } from "react";
+import Link from "next/link";
 import { ordersApi } from "@/api/orders";
+import { ROUTES } from "@/constants/routes";
 import { Badge } from "@/components/ui/Badge/Badge";
 import { Button } from "@/components/ui/Button/Button";
 import { SimulateDispute } from "@/components/orders/SimulateDispute/SimulateDispute";
@@ -75,7 +77,8 @@ export function OrdersTable({ orders, onChange, allowDispute = true }: Props) {
                           Ship
                         </Button>
                       )}
-                      {allowDispute && o.status === "captured" && (
+                      {allowDispute && o.case_id && <Link href={ROUTES.caseDetail(o.case_id)}>View case</Link>}
+                      {allowDispute && o.status === "captured" && !o.case_id && (
                         <Button size="sm" onClick={() => setDisputing(disputing === o.id ? null : o.id)}
                                 aria-expanded={disputing === o.id}>
                           {disputing === o.id ? "Close" : "Open dispute"}

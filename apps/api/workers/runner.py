@@ -19,7 +19,7 @@ from core.logging import configure_logging, correlation_id, get_logger
 from core import queue
 from models import Outbox
 from services import outbox_service, reconcile_service, store_service
-from workers.handlers import HANDLERS
+from workers.handlers import HANDLERS, ON_DEAD_LETTER
 
 log = get_logger(__name__)
 
@@ -55,6 +55,8 @@ def _run_job(outbox_id: int) -> None:
             outbox_service.mark_done(db, row)
         elif outbox_service.fail(db, row, error):
             log.error("job_dead_lettered", topic=topic, outbox_id=outbox_id, error=error)
+            if topic in ON_DEAD_LETTER:
+                ON_DEAD_LETTER[topic](db, payload, error)
         db.commit()
 
 

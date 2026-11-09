@@ -44,9 +44,18 @@ def require_analyst(authorization: str | None = Header(default=None)) -> str:
         return user.username
 
 
+def client_ip(request: Request) -> str:
+    """The caller's address for rate limiting. Behind the production proxy only the last X-Forwarded-For hop is
+    written by infrastructure; anything before it is whatever the client chose to send."""
+    forwarded = request.headers.get("x-forwarded-for", "")
+    if get_settings().is_production and forwarded.strip():
+        return forwarded.split(",")[-1].strip()
+    return request.client.host if request.client else "unknown"
+
+
 def rate_limit(name: str, limit: int, window_s: int = 60):
     def dependency(request: Request) -> None:
-        ip = request.client.host if request.client else "unknown"
+        ip = client_ip(request)
         if not limiter().allow(f"culpa:rl:{name}:{ip}", limit, window_s):
             raise RateLimited(f"rate limit exceeded for {name}")
 

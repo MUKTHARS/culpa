@@ -5,6 +5,10 @@ from __future__ import annotations
 from services.paypal.client import PayPalClient
 
 
+def get_capture(pp: PayPalClient, capture_id: str) -> dict:
+    return pp.request("GET", f"/v2/payments/captures/{capture_id}")
+
+
 def refund_capture(pp: PayPalClient, capture_id: str, *, amount: str | None, currency: str, note: str,
                    idempotency_key: str) -> dict:
     body: dict = {"note_to_payer": note[:255]}

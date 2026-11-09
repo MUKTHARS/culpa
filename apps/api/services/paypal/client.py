@@ -60,7 +60,12 @@ class PayPalClient:
                 self.breaker.before_call()
             except CircuitOpen as exc:
                 raise PayPalRetryable(str(exc)) from exc
-            headers = {"Authorization": f"Bearer {self._token()}", "Prefer": "return=representation"}
+            try:
+                token = self._token()
+            except (PayPalRetryable, PayPalFinal):
+                self.breaker.record_failure()  # otherwise a half-open trial would stay open forever
+                raise
+            headers = {"Authorization": f"Bearer {token}", "Prefer": "return=representation"}
             if idempotency_key:
                 headers["PayPal-Request-Id"] = idempotency_key
             try:
@@ -72,6 +77,7 @@ class PayPalClient:
             debug_id = resp.headers.get("PayPal-Debug-Id")
             if resp.status_code == 401:
                 local_cache.delete(TOKEN_KEY)
+                self.breaker.release_trial()  # an expired token says nothing about PayPal's health
                 raise PayPalRetryable("access token rejected; refreshing", status=401, debug_id=debug_id)
             if resp.status_code == 429 or resp.status_code >= 500:
                 self.breaker.record_failure()

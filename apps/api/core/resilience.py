@@ -49,6 +49,11 @@ class CircuitBreaker:
                     raise CircuitOpen(f"{self.name} circuit is half-open; trial call in flight")
                 self._half_open_trial = True
 
+    def release_trial(self) -> None:
+        """The half-open trial ended without telling us anything about the service: let the next call try."""
+        with self._lock:
+            self._half_open_trial = False
+
     def record_success(self) -> None:
         with self._lock:
             self._failures.clear()

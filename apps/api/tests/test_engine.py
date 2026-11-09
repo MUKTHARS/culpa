@@ -197,3 +197,12 @@ def test_search_matches_the_kind_of_product_not_its_attributes():
     assert rank("white t shirt size M", catalog)[0].id == "tee_White"  # the requested colour ranks first
     assert not relates_to("white t shirt", buds.title, buds.category, buds.attributes)
     assert relates_to("something white", buds.title, buds.category, buds.attributes)  # attribute-only request
+
+
+@pytest.mark.parametrize("flag", ["needs_evidence", "processing_dispute"])
+def test_a_side_signal_never_reads_as_blame_on_claims_records_cannot_prove(flag):
+    from engine.scoring import score
+    from engine.types import Evidence
+
+    judge = Evidence("claim", "Judge doubts the claim.", "judge", "F6", "buyer", 0.38, primary=False)
+    assert score([judge], [flag]) == (None, {"buyer": 0.0, "merchant": 0.0, "agent_provider": 0.0}, 0.0)

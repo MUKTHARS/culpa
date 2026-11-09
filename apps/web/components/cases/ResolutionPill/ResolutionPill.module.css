@@ -1,0 +1,25 @@
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  border-radius: 999px;
+  padding: 0 10px;
+  line-height: 24px;
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.autonomous {
+  background: #12b76a;
+  color: #fff;
+}
+
+.human {
+  background: #fec84b;
+  color: #5c3b00;
+}
+
+.none {
+  color: var(--ink-3);
+}

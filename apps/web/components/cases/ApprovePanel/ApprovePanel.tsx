@@ -25,16 +25,21 @@ function paypalStep(option: Option, detail: CaseDetail): string {
 /** The settlement in plain words: what happened to the money. */
 function outcomeTitle(action: Action, status: string, amount: string | null, detail: CaseDetail): string {
   const done = status === "succeeded";
-  const failed = status === "failed_final";
+  if (detail.status === "already_refunded") return "Already refunded earlier";
+  const failed = status === "failed_final" || detail.status === "settle_failed";
   if (action === "contest") return failed ? "Contest failed" : done ? "Dispute contested" : "Contesting the dispute…";
   const sum = money(amount, detail.currency);
   if (failed) return `Refund of ${sum} failed`;
+  if (detail.status === "offer_sent") return `Refund offer of ${sum} sent`;
   if (action === "refund_partial") return done ? `Refunded ${sum} of ${money(detail.amount, detail.currency)}` : `Refunding ${sum}…`;
   return done ? `Refunded ${sum} in full` : `Refunding ${sum}…`;
 }
 
 function outcomeDetail(action: Action, status: string, simulated: boolean, detail: CaseDetail): string {
+  if (detail.status === "already_refunded") return "PayPal shows this payment was refunded in full before this case. Nothing more was sent, so there was no second refund.";
   if (status === "failed_final") return "PayPal rejected the action. See the error below; the case needs another decision.";
+  if (detail.status === "settle_failed") return "PayPal could not be reached after every retry. No money moved. Replay it from the Jobs page.";
+  if (detail.status === "offer_sent") return "Sent on the buyer's PayPal dispute. The money moves only if the buyer accepts the offer.";
   if (action === "contest") {
     return detail.paypal_dispute_id
       ? "No money moved. Culpa's fingerprinted evidence was sent to PayPal to defend the payment."
@@ -117,7 +122,11 @@ export function ApprovePanel({ detail, onChange }: { detail: CaseDetail; onChang
             <p>{outcomeDetail(s.action, s.status, s.simulated, detail)}</p>
           </div>
           <div className="row">
-            <Badge tone={s.status === "succeeded" ? "good" : s.status === "failed_final" ? "bad" : "info"}>{humanize(s.status)}</Badge>
+            {detail.status === "already_refunded" ? (
+              <Badge tone="good">No action needed</Badge>
+            ) : (
+              <Badge tone={s.status === "succeeded" ? "good" : s.status === "failed_final" ? "bad" : "info"}>{humanize(s.status)}</Badge>
+            )}
             {s.simulated && <Badge tone="warn">Simulated: no money moved</Badge>}
           </div>
           {recommended && recommended !== "review" && (
@@ -130,7 +139,7 @@ export function ApprovePanel({ detail, onChange }: { detail: CaseDetail; onChang
           {s.error && <p className="error">{s.error}</p>}
           <dl className={styles.facts}>
             <dt>Approved by</dt>
-            <dd>{s.approved_by}</dd>
+            <dd>{s.approved_by === "auto-policy" ? "Culpa, automatically (no analyst)" : s.approved_by}</dd>
             <dt>Attempts</dt>
             <dd>{s.attempts}</dd>
             <dt>Last update</dt>
