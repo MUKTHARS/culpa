@@ -28,12 +28,16 @@ Fifth, Culpa produces a verdict. Fault follows the cause, not a vote. If nothing
 
 Some claims cannot be proven from records at all. An item that arrived broken, a counterfeit, a duplicate charge or a refund that never arrived is sent to a person with a note about what evidence is needed, instead of a guessed percentage.
 
-Sixth, an analyst settles the case in the dispute console. Culpa recommends an action and shows who bears the cost. The analyst can choose a full refund, a partial refund of an amount they set, or contest the claim, and can add a note for the audit log. Each option says exactly what will happen on PayPal: accept the claim, send a refund offer, refund the payment, or submit Culpa's evidence. After settling, the panel shows the outcome in plain words, for example "Dispute contested. No money moved."
+Sixth, Culpa settles the case on its own when it safely can. With autonomous mode on (AUTO_SETTLE=true), a clear verdict at 80 percent confidence or higher is carried out with no analyst: a full refund, a partial refund or a contest. The case shows "Culpa, automatically (no analyst)" as the approver, the case list marks it Autonomous PayPal Execution, and the outcome appears in plain words, for example "Refunded $44.00 in full".
+
+Culpa holds a case for a person when confidence is below 80 percent, when the records cannot prove the claim, when the order has already been settled under another case, or when the buyer describes an item that the records say never arrived. The case list marks these Human Analyst Required. In the dispute console the analyst sees Culpa's recommendation and who bears the cost, and can choose a full refund, a partial refund of an amount they set, or contest the claim, with a note for the audit log. Each option says exactly what will happen on PayPal: accept the claim, send a refund offer, refund the payment, or submit Culpa's evidence.
+
+Before any money moves, Culpa reads the payment back from PayPal and stops if it was already refunded or the dispute has closed. Each order can have only one case.
 
 
 Why it can be trusted with money
 
-The AI model never moves money. Gemini only receives the buyer's text as quoted data, must answer in a fixed JSON format, has no tools, and its output only adjusts confidence. A settlement policy written in code decides what happens to money, and anything below 80 percent confidence waits for a person.
+The AI model never moves money. Gemini only receives the buyer's text as quoted data, must answer in a fixed JSON format, has no tools, and its output only adjusts confidence. A settlement policy written in code decides what happens to money, and anything below 80 percent confidence waits for a person. Autonomous settlements use the same queue, idempotency key, state machine and audit log as an analyst's, and are recorded under the actor auto-policy.
 
 Every PayPal request carries an idempotency key that is the same on every retry, so a refund can never happen twice. Settlements move through a strict state machine. Webhooks are signature-checked and deduplicated. Every verdict, approval and PayPal action is written to an append-only audit log in which each entry contains the hash of the one before it, so editing history breaks the chain.
 
@@ -47,6 +51,15 @@ AgentDispute-150 is a set of 150 synthetic disputes, 25 for each fault type, wit
 A baseline that reads only the buyer's claim gets 73.3 percent right and would move money to the wrong party in 26.7 percent of cases. Culpa without the agent replay never moves money to the wrong party but has to send 34.7 percent of cases to a person. Full Culpa gets 98.7 percent right, moves money to the wrong party in 0 percent of cases, and sends 2.7 percent to a person. The data is synthetic and the engine shares its fault taxonomy, so these are in-distribution numbers, not real-world accuracy.
 
 A second set of 126 scenarios is built from real dispute rules: PayPal Buyer Protection for items not received, items not as described and unauthorized payments, its exclusions such as buyer's remorse, and Visa and Mastercard reason codes for defective goods, counterfeits, duplicate charges, incorrect amounts, refunds not processed and cancelled subscriptions, plus agent mandate breaches. Each scenario states the outcome its rule expects. All 126 pass. The full table is in bench/scenarios.md.
+
+
+What has been tested on real PayPal
+
+These ran against the PayPal sandbox with play money, and the results were read back from PayPal.
+
+Automatic full refunds with no analyst succeeded for 59 dollars and for 44 dollars (twice), and the buyer's sandbox PayPal activity shows the 44 dollar refund. Analyst-approved refunds succeeded for 96 dollars in full and for partial amounts of 4, 30 and 50 dollars.
+
+Known limits. Two automatic full refunds of 99 dollars were refused by PayPal with REFUND_NOT_ALLOWED, although the payments were intact. No money moved, Culpa recorded the failure, and the cause is still unconfirmed. The dispute simulator files claims through Culpa's own form, so a contest on those cases moves no money and is labelled simulated. Disputes filed inside PayPal have not yet been tested end to end. Webhook verification needs PAYPAL_WEBHOOK_ID, which the current Render deployment does not set.
 
 
 How it is built
@@ -81,7 +94,7 @@ To run the whole stack in Docker, with Postgres, Redis, the API, a worker and th
 
 Keys and settings
 
-All settings live in apps/api/.env. The PayPal client ID and secret come from developer.paypal.com under Apps and Credentials, sandbox. The PayPal webhook ID is only needed to verify real webhooks; locally Culpa polls PayPal for new disputes instead. The Gemini API key comes from aistudio.google.com under Get API key. The mandate signing secret is any long random string. The analyst username and password create the login for the dispute console; left empty in development, the console stays open without a login, and in production a login is required.
+All settings live in apps/api/.env. The PayPal client ID and secret come from developer.paypal.com under Apps and Credentials, sandbox. The PayPal webhook ID is only needed to verify real webhooks; locally Culpa polls PayPal for new disputes instead. The Gemini API key comes from aistudio.google.com under Get API key. The mandate signing secret is any long random string. AUTO_SETTLE=true turns on autonomous settlement; when it is false, every case waits for an analyst. The analyst username and password create the login for the dispute console; left empty in development, the console stays open without a login, and in production a login is required.
 
 Every key is optional for a first look. Without PayPal keys, orders and settlements run in simulated mode, clearly labelled in the interface. Without a Gemini key, Culpa uses its rule-based checks only.
 
@@ -90,12 +103,12 @@ Trying the main demo
 
 Open the buyer agent and choose the Ambiguous size example. The agent picks UK 9 for "size 9". Approve the cart. As the merchant, ship the order. In the dispute console, open Orders, choose Open dispute on that order, select "It's not as described", pick Size and enter US 9 as what you expected. The case opens as an ambiguous instruction: buyer 60 percent, agent provider 40 percent, with a partial refund recommended. Approve it, and the settlement runs with its idempotency key while the audit log records every step.
 
-For a merchant-fault case, buy something, change the listing's material on the merchant page before shipping, then ship and dispute it as not as described. For a friendly-fraud case, buy and ship normally, then open a dispute saying your agent bought the wrong thing.
+For an automatic refund, buy something, change the listing's material on the merchant page before shipping, then ship and dispute it as not as described. With AUTO_SETTLE=true Culpa finds the merchant at fault and refunds the buyer with no analyst. For an automatic contest, buy and ship normally, then open a dispute saying your agent bought the wrong thing.
 
 
 Testing
 
-One command runs the 213 backend tests, including all 126 dispute scenarios, the benchmark, the web type check and a production build:
+One command runs the 256 backend tests, including all 126 dispute scenarios, the benchmark, the web type check and a production build:
 
     powershell -ExecutionPolicy Bypass -File scripts\test.ps1
 
